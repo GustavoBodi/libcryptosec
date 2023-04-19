@@ -10,10 +10,55 @@
 class Base64Test : public ::testing::Test {
 
 protected:
+    using BaPair = std::pair<ByteArray, ByteArray>;
     virtual void SetUp() {
     }
 
     virtual void TearDown() {
+    }
+
+    BaPair BaPairFromByteArray() {
+      ByteArray ba { Base64::decode(Base64Test::stringB64) };
+      ByteArray copy { ba };
+      return make_pair(ba, copy);
+    }
+
+    void SanityPairTest(BaPair pair) {
+      ASSERT_EQ(pair.first, pair.second);
+    }
+
+    void ToStringAsciiTest(BaPair pair) {
+      ASSERT_EQ(pair.first.toString(), Base64Test::stringASCII);
+    }
+
+    void ToHexTest(BaPair pair) {
+      ASSERT_EQ(pair.first.toHex(), Base64Test::stringHex);
+    }
+
+    void SizeTest(BaPair pair) {
+      ASSERT_EQ(pair.first.size(), pair.second.size());
+    }
+
+    void EqualsOperatorTest(BaPair pair) {
+      ASSERT_TRUE(pair.first == pair.second);
+    }
+
+    void UnequalsOperatorTest(BaPair pair) {
+      ASSERT_FALSE(pair.first != pair.second);
+    }
+
+    void StringStreamTest(BaPair pair) {
+      std::istringstream *iss { pair.first.toStream() };
+      std::string issValue { iss->str()};
+      char at { pair.first.at(10) };
+      ASSERT_EQ(at, compChar);
+      ASSERT_EQ(issValue, stringASCII);
+    }
+
+    void EncodingSanityTest() {
+      ByteArray ba { Base64::decode(Base64Test::stringB64) };
+      std::string encode { Base64::encode(ba) };
+      ASSERT_EQ(encode, Base64Test::stringB64);
     }
 
     static std::string stringASCII;
@@ -28,42 +73,48 @@ protected:
 /*
  * Initialization of variables used in the tests
  */
-std::string Base64Test::stringASCII = "Still waiting for Silksong release...";
-std::string Base64Test::stringHex = "5374696C6C2077616974696E6720666F722053696C6B736F6E672072656C656173652E2E2E";
-std::string Base64Test::stringB64 = "U3RpbGwgd2FpdGluZyBmb3IgU2lsa3NvbmcgcmVsZWFzZS4uLg==";
-const char Base64Test::compChar = 'i';
-unsigned int Base64Test::size = 37;
+std::string Base64Test::stringASCII {"Still waiting for Silksong release..." };
+std::string Base64Test::stringHex { "5374696C6C2077616974696E6720666F722053696C6B736F6E672072656C656173652E2E2E" };
+std::string Base64Test::stringB64 { "U3RpbGwgd2FpdGluZyBmb3IgU2lsa3NvbmcgcmVsZWFzZS4uLg==" };
+constexpr char Base64Test::compChar { 'i' };
+unsigned int Base64Test::size { 37 };
 
-/**
- * @brief Tests Base64Decode and the functionalities of returned ByteArray
- */
-TEST_F(Base64Test, Base64Decode) {
-    ByteArray ba = Base64::decode(Base64Test::stringB64);
-    ByteArray baCopy = ba;
-    std::istringstream *iss = ba.toStream();
-
-    std::string issValue = iss->str();
-    char at = ba.at(10);
-
-    ASSERT_EQ(at, Base64Test::compChar);
-    ASSERT_EQ(ba.toString(), Base64Test::stringASCII);
-    ASSERT_EQ(ba.toHex(), Base64Test::stringHex);
-    ASSERT_EQ(ba.size(), Base64Test::size);
-
-    ASSERT_EQ(baCopy, ba);
-    ASSERT_EQ(issValue, Base64Test::stringASCII);
-    ASSERT_EQ(ba[10], Base64Test::compChar);
-
-    ASSERT_TRUE(ba == baCopy);
-    ASSERT_FALSE(ba != baCopy);
+TEST_F(Base64Test, SanityPair) {
+  BaPair pair { BaPairFromByteArray() };
+  SanityPairTest(pair);
 }
 
-/**
- * @brief Tests Decoding and then Encoding
- */
-TEST_F(Base64Test, Base64Encode) {
-    ByteArray ba = Base64::decode(Base64Test::stringB64);
-    std::string encode = Base64::encode(ba);
-
-    ASSERT_EQ(encode, Base64Test::stringB64);
+TEST_F(Base64Test, ToString) {
+  BaPair pair { BaPairFromByteArray() };
+  ToStringAsciiTest(pair);
 }
+
+TEST_F(Base64Test, ToHexTest) {
+  BaPair pair { BaPairFromByteArray() };
+  ToHexTest(pair);
+}
+
+TEST_F(Base64Test, SizeTest) {
+  BaPair pair { BaPairFromByteArray() };
+  SizeTest(pair);
+}
+
+TEST_F(Base64Test, FromByteArray) {
+  BaPair pair { BaPairFromByteArray() };
+  EqualsOperatorTest(pair);
+}
+
+TEST_F(Base64Test, UnequalsOperator) {
+  BaPair pair { BaPairFromByteArray() };
+  UnequalsOperatorTest(pair);
+}
+
+TEST_F(Base64Test, StringStream) {
+  BaPair pair { BaPairFromByteArray() };
+  StringStreamTest(pair);
+}
+
+TEST_F(Base64Test, Encoding) {
+  EncodingSanityTest();
+}
+
