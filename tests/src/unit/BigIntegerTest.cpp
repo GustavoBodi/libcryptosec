@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <gtest/gtest.h>
+#include <utility>
 
 
 /**
@@ -10,11 +11,341 @@
 class BigIntegerTest : public ::testing::Test {
 
 protected:
+    using BintPair = std::pair<BigInteger, BigInteger>;
+
     virtual void SetUp() {
     }
 
     virtual void TearDown() {
     }
+
+    void pairSetLong(BintPair &pair) {
+        pair.first.setValue(longValue);
+        pair.second.setValue(longValue);
+    }
+
+    void pairSetLongNeg(BintPair &pair) {
+        pair.first.setValue(longValueNeg);
+        pair.second.setValue(longValueNeg);
+    }
+
+    BintPair CreatePairFromEmpty() {
+        BigInteger bi_empty = BigInteger();
+        BigInteger copy{bi_empty};
+        return std::make_pair(bi_empty, copy);
+    }
+
+    BintPair CreatePairFromDefault() {
+        BigInteger bi_default{longValue};
+        BigInteger copy{bi_default};
+        return std::make_pair(bi_default, copy);
+    }
+
+    BintPair CreatePairFromBigNum() {
+        BIGNUM *p = BN_new();
+        BN_bin2bn((unsigned char *) "\x01\x02\x03", 3, p);
+        BigInteger bi_bignum{p};
+        BigInteger copy{bi_bignum};
+        return std::make_pair(bi_bignum, copy);
+    }
+
+    BintPair CreatePairFromASN1() {
+        ASN1_INTEGER *ans_int = ASN1_INTEGER_new();
+        ASN1_INTEGER_set(ans_int, longValue);
+        BigInteger bi_ans1{ans_int};
+        BigInteger copy{bi_ans1};
+        return std::make_pair(bi_ans1, copy);
+    }
+
+    BintPair CreatePairFromString() {
+        BigInteger bi_str{decValue};
+        BigInteger copy{bi_str};
+        return std::make_pair(bi_str, copy);
+    }
+
+    BintPair CreatePairFromByteArray() {
+        BigInteger bi{longValue};
+        ByteArray ba{*bi.getBinValue()};
+        BigInteger bi_ba{ba};
+        BigInteger copy{bi_ba};
+        return std::make_pair(bi_ba, copy);
+    }
+
+    BintPair CreatePairFromBigInteger() {
+        BigInteger bi{longValue};
+        BigInteger biFromRef{bi};
+        BigInteger copy{biFromRef};
+        return std::make_pair(biFromRef, copy);
+    }
+
+    void testGeneric(BintPair pair) {
+        testGetValue(pair);
+        testIsNegative(pair);
+        testGetASN1(pair);
+        testGetBinValue(pair);
+        testGetBigNum(pair);
+        testToHex(pair);
+        testToDec(pair);
+        testSetHexValue(pair);
+        testSetDec(pair);
+        testSetRandValue(pair);
+        testSetValue(pair);
+        testSize(pair);
+        testSum(pair);
+        testSumBint(pair);
+        testSumBintOverload(pair);
+        testSumOverload(pair);
+        testSub(pair);
+        testSubOverload(pair);
+        testSubBintOverload(pair);
+        testCompare(pair);
+        testEquals(pair);
+        testDifferent(pair);
+        testToDecNeg(pair);
+        testToHexNeg(pair);
+        testSetDecNeg(pair);
+        testSetHexValueNeg(pair);
+        testGetASN1Neg(pair);
+        testGetValueNeg(pair);
+        testGetBinValueNeg(pair);
+    }
+
+    void testGetValue(BintPair pair) {
+        pairSetLong(pair);
+        ASSERT_EQ(pair.first.getValue(), pair.second.getValue());
+        ASSERT_EQ(pair.first.getValue(), longValue);
+    }
+
+    void testGetValueNeg(BintPair pair) {
+        pairSetLongNeg(pair);
+        ASSERT_EQ(pair.first.getValue(), pair.second.getValue());
+        ASSERT_EQ(pair.first.getValue(), longValueNeg);
+    }
+
+    void testIsNegative(BintPair pair) {
+        pair.first.setValue(longValueNeg);
+        pair.second.setValue(longValue);
+        ASSERT_TRUE(pair.first.isNegative());
+        ASSERT_TRUE(!pair.second.isNegative());
+    }
+
+    void testGetASN1(BintPair pair) {
+        ASN1_INTEGER *ans_int = ASN1_INTEGER_new();
+        ASN1_INTEGER_set(ans_int, longValue);
+        pairSetLong(pair);
+        int64_t *first = new int64_t;
+        int64_t *ans = new int64_t;
+        ASN1_INTEGER_get_int64(first, pair.first.getASN1Value());
+        ASN1_INTEGER_get_int64(ans, ans_int);
+        ASSERT_EQ(*first, *ans);
+
+        int64_t *part1 = new int64_t;
+        int64_t *part2 = new int64_t;
+        ASN1_INTEGER_get_int64(part1, pair.first.getASN1Value());
+        ASN1_INTEGER_get_int64(part2, pair.second.getASN1Value());
+        ASSERT_EQ(*part1, *part2);
+    }
+
+    void testGetASN1Neg(BintPair pair) {
+        pairSetLongNeg(pair);
+        ASN1_INTEGER *ans_int_2 = ASN1_INTEGER_new();
+        ASN1_INTEGER_set(ans_int_2, longValueNeg);
+        int64_t *part3 = new int64_t;
+        int64_t *part4 = new int64_t;
+        ASN1_INTEGER_get_int64(part3, pair.first.getASN1Value());
+        ASN1_INTEGER_get_int64(part4, ans_int_2);
+        ASSERT_EQ(*part3, *part4);
+    }
+
+    void testGetBinValue(BintPair pair) {
+        BigInteger bi;
+        ASSERT_EQ(0, bi.getValue());
+        ASSERT_EQ(0, bi.size());
+
+        pairSetLong(pair);
+        ByteArray *ba = pair.first.getBinValue();
+        BigInteger biTest(*ba);
+        ASSERT_EQ(pair.first.getValue(), biTest.getValue());
+    }
+
+    void testGetBinValueNeg(BintPair pair) {
+        BigInteger bi;
+        ASSERT_EQ(0, bi.getValue());
+        ASSERT_EQ(0, bi.size());
+
+        pair.second.setValue(longValueNeg);
+        ByteArray *ba = pair.second.getBinValue();
+        BigInteger biTestNeg(*ba);
+        ASSERT_EQ(pair.second.getValue(), biTestNeg.getValue());
+    }
+
+    void testGetBigNum(BintPair pair) {
+        pairSetLong(pair);
+        auto res = BN_bn2dec(pair.first.getBIGNUM());
+        auto res2 = BN_bn2dec(pair.second.getBIGNUM());
+        ASSERT_EQ(*res, *res2);
+
+        auto bi = BigInteger();
+        bi.setValue(BigIntegerTest::longValue);
+        const BIGNUM *bn = bi.getBIGNUM();
+        auto chr = BN_bn2dec(bn);
+        ASSERT_EQ(BigIntegerTest::decValue, chr);
+    }
+
+    void testToHex(BintPair pair) {
+        pairSetLong(pair);
+        ASSERT_EQ(pair.first.toHex(), pair.second.toHex());
+        ASSERT_EQ(pair.first.toHex(), hexValue);
+        ASSERT_EQ(pair.second.toHex(), hexValue);
+    }
+
+    void testToHexNeg(BintPair pair) {
+        pairSetLongNeg(pair);
+        ASSERT_EQ(pair.first.toHex(), pair.second.toHex());
+        ASSERT_EQ(pair.first.toHex(), hexValueNeg);
+        ASSERT_EQ(pair.second.toHex(), hexValueNeg);
+    }
+
+    void testToDec(BintPair pair) {
+        pairSetLong(pair);
+        ASSERT_EQ(pair.first.toDec(), pair.second.toDec());
+        ASSERT_EQ(pair.first.toDec(), decValue);
+        ASSERT_EQ(pair.second.toDec(), decValue);
+    }
+
+    void testToDecNeg(BintPair pair) {
+        pairSetLongNeg(pair);
+        ASSERT_EQ(pair.first.toDec(), pair.second.toDec());
+        ASSERT_EQ(pair.first.toDec(), decValueNeg);
+        ASSERT_EQ(pair.second.toDec(), decValueNeg);
+    }
+
+    void testSetHexValue(BintPair pair) {
+        pair.first.setHexValue(hexValue);
+        pair.second.setHexValue(hexValue);
+        ASSERT_EQ(pair.first, pair.second);
+        ASSERT_EQ(pair.first.toHex(), hexValue);
+        ASSERT_EQ(pair.second.toHex(), hexValue);
+    }
+
+    void testSetHexValueNeg(BintPair pair) {
+        pair.first.setHexValue(hexValueNeg);
+        pair.second.setHexValue(hexValueNeg);
+        ASSERT_EQ(pair.first, pair.second);
+        ASSERT_EQ(pair.first.toHex(), hexValueNeg);
+        ASSERT_EQ(pair.second.toHex(), hexValueNeg);
+    }
+
+    void testSetDec(BintPair pair) {
+        pair.first.setDecValue(decValue);
+        pair.second.setDecValue(decValue);
+        ASSERT_EQ(pair.first, pair.second);
+        ASSERT_EQ(pair.first, decValue);
+        ASSERT_EQ(pair.second, decValue);
+    }
+
+    void testSetDecNeg(BintPair pair) {
+        pair.first.setDecValue(decValueNeg);
+        pair.second.setDecValue(decValueNeg);
+        ASSERT_EQ(pair.first, pair.second);
+        ASSERT_EQ(pair.first, decValueNeg);
+        ASSERT_EQ(pair.second, decValueNeg);
+    }
+
+    void testSetRandValue(BintPair pair) {
+        pair.first.setRandValue(size);
+        pair.second.setRandValue(size);
+        ASSERT_FALSE(pair.first == pair.second);
+        ASSERT_TRUE(pair.first.getValue() != 0);
+    }
+
+    void testSetValue(BintPair pair) {
+        pair.first.setValue(longValue);
+        ASSERT_EQ(pair.first, longValue);
+        pair.first.setValue(longValueNeg);
+        ASSERT_EQ(pair.first, longValueNeg);
+        pair.second.setValue(longValueNeg);
+        ASSERT_EQ(pair.first.getValue(), pair.second.getValue());
+    }
+
+    void testSize(BintPair pair) {
+        pairSetLong(pair);
+        ASSERT_EQ(pair.first.size(), pair.second.size());
+        pair.second.setValue(longValueNeg);
+        ASSERT_EQ(pair.first.size(), size);
+        ASSERT_EQ(pair.second.size(), sizeNeg);
+    }
+
+    void testSum(BintPair pair) {
+        pairSetLong(pair);
+        pair.first = pair.first + 2;
+        ASSERT_EQ(pair.first.getValue(), longValue + 2);
+        ASSERT_TRUE(pair.first.getValue() == (pair.second + 2).getValue());
+    }
+
+    void testSumBint(BintPair pair) {
+        pair.first = 1;
+        pair.second = 10;
+        ASSERT_TRUE(pair.first + pair.second == 11);
+    }
+
+    void testSumOverload(BintPair pair) {
+        pairSetLong(pair);
+        pair.first += pair.first;
+        ASSERT_EQ(pair.first.getValue(), longValue * 2);
+        ASSERT_TRUE(pair.first.getValue() == (pair.second * 2).getValue());
+    }
+
+    void testSumBintOverload(BintPair pair) {
+        pair.first = 1;
+        pair.second = 10;
+        pair.first += pair.second;
+        ASSERT_EQ(pair.first, 11);
+        ASSERT_EQ(pair.second, 10);
+    }
+
+    void testSub(BintPair pair) {
+        pairSetLong(pair);
+        pair.first += -2;
+        ASSERT_EQ(pair.first.getValue(), longValue - 2);
+        ASSERT_TRUE(pair.first.getValue() == (pair.second - 2).getValue());
+    }
+
+    void testSubOverload(BintPair pair) {
+        pairSetLong(pair);
+        pair.first -= pair.first;
+        ASSERT_EQ(pair.first.getValue(), 0);
+        ASSERT_TRUE(pair.first.getValue() == (pair.second * 0).getValue());
+    }
+
+    void testSubBintOverload(BintPair pair) {
+        pair.first = 1;
+        pair.second = 10;
+        pair.first -= pair.second;
+        ASSERT_EQ(pair.first, -9);
+        ASSERT_EQ(pair.second, 10);
+    }
+
+    void testCompare(BintPair pair) {
+        pairSetLong(pair);
+        ASSERT_EQ(pair.first.compare(pair.second), 0);
+        pair.second += 1;
+        ASSERT_EQ(pair.first.compare(pair.second), -1);
+        pair.second += -2;
+        ASSERT_EQ(pair.first.compare(pair.second), 1);
+    }
+
+    void testEquals(BintPair pair) {
+        pairSetLong(pair);
+        ASSERT_TRUE(pair.first == pair.second);
+    }
+
+    void testDifferent(BintPair pair) {
+        pairSetLong(pair);
+        pair.first += 1;
+        ASSERT_TRUE(pair.first != pair.second);
+    }
+
 
     static long longValue;
     static long longValueNeg;
@@ -29,257 +360,189 @@ protected:
 /*
  * Initialization of variables used in the tests
  */
-long BigIntegerTest::longValue = 1234567890987654321;
-long BigIntegerTest::longValueNeg = -1234567890987654321;
-int BigIntegerTest::size = 61;
-int BigIntegerTest::sizeNeg = 61;
-std::string BigIntegerTest::decValue = "1234567890987654321";
-std::string BigIntegerTest::decValueNeg = "-1234567890987654321";
-std::string BigIntegerTest::hexValue = "112210F4B16C1CB1";
-std::string BigIntegerTest::hexValueNeg = "-112210F4B16C1CB1";
+long BigIntegerTest::longValue{1234567890987654321};
+long BigIntegerTest::longValueNeg{-1234567890987654321};
+int BigIntegerTest::size{61};
+int BigIntegerTest::sizeNeg{61};
+std::string BigIntegerTest::decValue{"1234567890987654321"};
+std::string BigIntegerTest::decValueNeg{"-1234567890987654321"};
+std::string BigIntegerTest::hexValue{"112210F4B16C1CB1"};
+std::string BigIntegerTest::hexValueNeg{"-112210F4B16C1CB1"};
 
 /**
  * @brief Tests if Default Constructor creates a BigInteger with value zero
  */
-TEST_F(BigIntegerTest, DefaultConstructor) {
-    BigInteger bi;
-
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    ASSERT_EQ("0", bi.toDec());
-    ASSERT_EQ("0", bi.toHex());
-
-    ASSERT_FALSE(bi.isNegative());
+TEST_F(BigIntegerTest, GetValue) {
+    auto pair = CreatePairFromEmpty();
+    testGetValue(pair);
 }
 
-/**
- * @brief Tests if Constructor with a long parameter creates a BigInteger with proper value
- */
-TEST_F(BigIntegerTest, LongConstructor) {
-    BigInteger bi(BigIntegerTest::longValue);
-
-    ASSERT_EQ(BigIntegerTest::longValue, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::size, bi.size());
-
-    ASSERT_EQ(BigIntegerTest::decValue, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValue, bi.toHex());
-
-    ASSERT_FALSE(bi.isNegative());
+TEST_F(BigIntegerTest, GetValueNeg) {
+    auto pair = CreatePairFromEmpty();
+    testGetValueNeg(pair);
 }
 
-/**
- * @brief Tests if Constructor with a negative long parameter creates a BigInteger with proper value
- */
-TEST_F(BigIntegerTest, LongConstructorNeg) {
-    BigInteger bi(BigIntegerTest::longValueNeg);
-
-    ASSERT_EQ(BigIntegerTest::longValueNeg, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::sizeNeg, bi.size());
-
-    ASSERT_EQ(BigIntegerTest::decValueNeg, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValueNeg, bi.toHex());
-
-    ASSERT_TRUE(bi.isNegative());
+TEST_F(BigIntegerTest, IsNegative) {
+    auto pair = CreatePairFromEmpty();
+    testIsNegative(pair);
 }
 
-/**
- * @brief Tests if Constructor with a decimal parameter creates a BigInteger with proper value
- */
-TEST_F(BigIntegerTest, DecConstructor) {
-    BigInteger bi(BigIntegerTest::decValue);
-
-    ASSERT_EQ(BigIntegerTest::longValue, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::size, bi.size());
-
-    ASSERT_EQ(BigIntegerTest::decValue, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValue, bi.toHex());
-
-    ASSERT_FALSE(bi.isNegative());
+TEST_F(BigIntegerTest, GetASN1) {
+    auto pair = CreatePairFromEmpty();
+    testGetASN1(pair);
 }
 
-/**
- * @brief Tests if Constructor with a negative decimal parameter creates a BigInteger with proper value
- */
-TEST_F(BigIntegerTest, DecConstructorNeg) {
-    BigInteger bi(BigIntegerTest::decValueNeg);
-
-    ASSERT_EQ(BigIntegerTest::longValueNeg, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::sizeNeg, bi.size());
-
-    ASSERT_EQ(BigIntegerTest::decValueNeg, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValueNeg, bi.toHex());
-
-    ASSERT_TRUE(bi.isNegative());
+TEST_F(BigIntegerTest, GetASN1Neg) {
+    auto pair = CreatePairFromEmpty();
+    testGetASN1Neg(pair);
 }
 
-/**
- * @brief Tests if setValue works properly with long, decimal and hexadecimal values
- */
+TEST_F(BigIntegerTest, GetBinValue) {
+    auto pair = CreatePairFromEmpty();
+    testGetBinValue(pair);
+}
+
+TEST_F(BigIntegerTest, GetBinValueNeg) {
+    auto pair = CreatePairFromEmpty();
+    testGetBinValueNeg(pair);
+}
+
+TEST_F(BigIntegerTest, GetBigNum) {
+    auto pair = CreatePairFromEmpty();
+    testGetBigNum(pair);
+}
+
+TEST_F(BigIntegerTest, ToHex) {
+    auto pair = CreatePairFromEmpty();
+    testToHex(pair);
+}
+
+TEST_F(BigIntegerTest, ToDec) {
+    auto pair = CreatePairFromEmpty();
+    testToDec(pair);
+}
+
+TEST_F(BigIntegerTest, SetHex) {
+    auto pair = CreatePairFromEmpty();
+    testSetHexValue(pair);
+}
+
+TEST_F(BigIntegerTest, SetDec) {
+    auto pair = CreatePairFromEmpty();
+    testSetDec(pair);
+}
+
+TEST_F(BigIntegerTest, SetRand) {
+    auto pair = CreatePairFromEmpty();
+    testSetRandValue(pair);
+}
+
 TEST_F(BigIntegerTest, SetValue) {
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    bi.setValue(BigIntegerTest::longValue);
-    ASSERT_EQ(BigIntegerTest::longValue, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::decValue, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValue, bi.toHex());
-    ASSERT_EQ(BigIntegerTest::size, bi.size());
-    ASSERT_FALSE(bi.isNegative());
-
-    BigInteger biDec;
-    ASSERT_EQ(0, biDec.getValue());
-    ASSERT_EQ(0, biDec.size());
-
-    biDec.setDecValue(BigIntegerTest::decValue);
-    ASSERT_EQ(BigIntegerTest::longValue, biDec.getValue());
-    ASSERT_EQ(BigIntegerTest::decValue, biDec.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValue, biDec.toHex());
-    ASSERT_EQ(BigIntegerTest::size, biDec.size());
-    ASSERT_FALSE(bi.isNegative());
-
-    BigInteger biHex;
-    ASSERT_EQ(0, biHex.getValue());
-    ASSERT_EQ(0, biHex.size());
-
-    biHex.setHexValue(BigIntegerTest::hexValue);
-    ASSERT_EQ(BigIntegerTest::longValue, biHex.getValue());
-    ASSERT_EQ(BigIntegerTest::decValue, biHex.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValue, biHex.toHex());
-    ASSERT_EQ(BigIntegerTest::size, biHex.size());
-    ASSERT_FALSE(bi.isNegative());
+    auto pair = CreatePairFromEmpty();
+    testSetValue(pair);
 }
 
-/**
- * @brief Tests if setValue works properly with negative long, decimal and hexadecimal values
- */
-TEST_F(BigIntegerTest, SetValueNeg) {
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    bi.setValue(BigIntegerTest::longValueNeg);
-    ASSERT_EQ(BigIntegerTest::longValueNeg, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::decValueNeg, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValueNeg, bi.toHex());
-    ASSERT_EQ(BigIntegerTest::sizeNeg, bi.size());
-    ASSERT_TRUE(bi.isNegative());
-
-    BigInteger biDec;
-    ASSERT_EQ(0, biDec.getValue());
-    ASSERT_EQ(0, biDec.size());
-
-    biDec.setDecValue(BigIntegerTest::decValueNeg);
-    ASSERT_EQ(BigIntegerTest::longValueNeg, biDec.getValue());
-    ASSERT_EQ(BigIntegerTest::decValueNeg, biDec.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValueNeg, biDec.toHex());
-    ASSERT_EQ(BigIntegerTest::sizeNeg, biDec.size());
-    ASSERT_TRUE(bi.isNegative());
-
-    BigInteger biHex;
-    ASSERT_EQ(0, biHex.getValue());
-    ASSERT_EQ(0, biHex.size());
-
-    biHex.setHexValue(BigIntegerTest::hexValueNeg);
-    ASSERT_EQ(BigIntegerTest::longValueNeg, biHex.getValue());
-    ASSERT_EQ(BigIntegerTest::decValueNeg, biHex.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValueNeg, biHex.toHex());
-    ASSERT_EQ(BigIntegerTest::sizeNeg, biHex.size());
-    ASSERT_TRUE(bi.isNegative());
+TEST_F(BigIntegerTest, ToDecNeg) {
+    auto pair = CreatePairFromEmpty();
+    testToDecNeg(pair);
 }
 
-/**
- * @brief Tests if setNegative properly sets the value to negative
- */
-TEST_F(BigIntegerTest, SetNegative) {
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    bi.setValue(BigIntegerTest::longValue);
-    ASSERT_FALSE(bi.isNegative());
-
-    bi.setNegative();
-    ASSERT_EQ(BigIntegerTest::longValueNeg, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::decValueNeg, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValueNeg, bi.toHex());
-    ASSERT_EQ(BigIntegerTest::sizeNeg, bi.size());
-    ASSERT_TRUE(bi.isNegative());
-
-    bi.setNegative(false);
-    ASSERT_EQ(BigIntegerTest::longValue, bi.getValue());
-    ASSERT_EQ(BigIntegerTest::decValue, bi.toDec());
-    ASSERT_EQ(BigIntegerTest::hexValue, bi.toHex());
-    ASSERT_EQ(BigIntegerTest::size, bi.size());
-    ASSERT_FALSE(bi.isNegative());
+TEST_F(BigIntegerTest, ToHexNeg) {
+    auto pair = CreatePairFromEmpty();
+    testToHexNeg(pair);
 }
 
-/**
- * @brief Tests if setRandValue creates a value with the specified number of bits
- */
-TEST_F(BigIntegerTest, SetRandValue) {
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    bi.setRandValue(16);
-    ASSERT_FALSE(bi.size() > 16);
-
-    bi.setRandValue(32);
-    ASSERT_FALSE(bi.size() > 32);
-
-    bi.setRandValue(64);
-    ASSERT_FALSE(bi.size() > 64);
+TEST_F(BigIntegerTest, SetDecNeg) {
+    auto pair = CreatePairFromEmpty();
+    testSetDecNeg(pair);
 }
 
-/**
- * @brief Tests if the ByteArray with mpi codification can be used to create a BigInteger of same value
- */
-TEST_F(BigIntegerTest, getBinValue) {
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    bi.setValue(BigIntegerTest::longValue);
-    ByteArray *ba = bi.getBinValue();
-    BigInteger biTest(*ba);
-    ASSERT_EQ(bi.getValue(), biTest.getValue());
-
-    bi.setValue(BigIntegerTest::longValueNeg);
-    ba = bi.getBinValue();
-    BigInteger biTestNeg(*ba);
-    ASSERT_EQ(bi.getValue(), biTestNeg.getValue());
+TEST_F(BigIntegerTest, SetHexValueNeg) {
+    auto pair = CreatePairFromEmpty();
+    testSetHexValueNeg(pair);
 }
 
-/**
- * @brief Tests if the ASN1_INTEGER returned has the correct value
- */
-TEST_F(BigIntegerTest, GetASN1Value) {
-    int64_t *value = new int64_t;
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
-
-    bi.setValue(BigIntegerTest::longValue);
-    ASN1_INTEGER *asn1Int = bi.getASN1Value();
-    ASN1_INTEGER_get_int64(value, asn1Int);
-
-    ASSERT_EQ(BigIntegerTest::longValue, *value);
+TEST_F(BigIntegerTest, Size) {
+    auto pair = CreatePairFromEmpty();
+    testSize(pair);
 }
 
-/**
- * @brief Tests if the BIGNUM returned has the correct value
- */
-TEST_F(BigIntegerTest, GetBIGNUM) {
-    char *chr = new char;
-    BigInteger bi;
-    ASSERT_EQ(0, bi.getValue());
-    ASSERT_EQ(0, bi.size());
+TEST_F(BigIntegerTest, Sum) {
+    auto pair = CreatePairFromEmpty();
+    testSum(pair);
+}
 
-    bi.setValue(BigIntegerTest::longValue);
-    const BIGNUM *bn = bi.getBIGNUM();
-    chr = BN_bn2dec(bn);
+TEST_F(BigIntegerTest, SumBint) {
+    auto pair = CreatePairFromEmpty();
+    testSumBint(pair);
+}
 
-    ASSERT_EQ(BigIntegerTest::decValue, chr);
+TEST_F(BigIntegerTest, SumBintOverload) {
+    auto pair = CreatePairFromEmpty();
+    testSumBintOverload(pair);
+}
+
+TEST_F(BigIntegerTest, SumOverload) {
+    auto pair = CreatePairFromEmpty();
+    testSumOverload(pair);
+}
+
+TEST_F(BigIntegerTest, Sub) {
+    auto pair = CreatePairFromEmpty();
+    testSub(pair);
+}
+
+TEST_F(BigIntegerTest, SubOverload) {
+    auto pair = CreatePairFromEmpty();
+    testSubOverload(pair);
+}
+
+TEST_F(BigIntegerTest, Compare) {
+    auto pair = CreatePairFromEmpty();
+    testCompare(pair);
+}
+
+TEST_F(BigIntegerTest, Equals) {
+    auto pair = CreatePairFromEmpty();
+    testEquals(pair);
+}
+
+TEST_F(BigIntegerTest, Different) {
+    auto pair = CreatePairFromEmpty();
+    testDifferent(pair);
+}
+
+TEST_F(BigIntegerTest, EmptyConstructor) {
+    auto pair = CreatePairFromEmpty();
+    testGeneric(pair);
+}
+
+TEST_F(BigIntegerTest, ASN1Constructor) {
+    auto pair = CreatePairFromASN1();
+    testGeneric(pair);
+}
+
+TEST_F(BigIntegerTest, BigIntegerConstructor) {
+    auto pair = CreatePairFromBigInteger();
+    testGeneric(pair);
+}
+
+TEST_F(BigIntegerTest, BigNumConstructor) {
+    auto pair = CreatePairFromBigNum();
+    testGeneric(pair);
+}
+
+TEST_F(BigIntegerTest, DefaultConstructor) {
+    auto pair = CreatePairFromDefault();
+    testGeneric(pair);
+}
+
+TEST_F(BigIntegerTest, StringConstructor) {
+    auto pair = CreatePairFromString();
+    testGeneric(pair);
+}
+
+TEST_F(BigIntegerTest, ByteArrayConstructor) {
+    auto pair = CreatePairFromByteArray();
+    testGeneric(pair);
 }
