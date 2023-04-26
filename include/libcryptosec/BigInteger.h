@@ -219,8 +219,9 @@ public:
 	 * @throw BigIntegerException no caso de um erro interno do OpenSSL. 
 	 * */
 	BigInteger operator-(BigInteger const& c) const throw(BigIntegerException);
-	
 	BigInteger operator-(long const c) const throw(BigIntegerException);
+  BigInteger& operator-=(BigInteger const& c) throw(BigIntegerException);
+  BigInteger& operator-=(long const c) throw(BigIntegerException);
 	
 	bool operator==(BigInteger const& c) const throw();
 	bool operator==(long const c) const throw(BigIntegerException);
