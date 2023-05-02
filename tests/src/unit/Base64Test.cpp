@@ -25,6 +25,7 @@ protected:
 
     void SanityPairTest(BaPair pair) {
       ASSERT_EQ(pair.first, pair.second);
+      ASSERT_EQ(pair.first.size(), pair.second.size());
     }
 
     void ToStringAsciiTest(BaPair pair) {
@@ -36,7 +37,7 @@ protected:
     }
 
     void SizeTest(BaPair pair) {
-      ASSERT_EQ(pair.first.size(), pair.second.size());
+      ASSERT_EQ(pair.first.size(), size);
     }
 
     void EqualsOperatorTest(BaPair pair) {
