@@ -22,28 +22,28 @@ class AsymmetricKeyExceptionTest : public ::testing::Test {
   }
 
   std::string throwSetNoValue() {
-    auto encrypting { AsymmetricKeyException(AsymmetricKeyException::SET_NO_VALUE, "here") };
-    return encrypting.getMessage();
+    auto value { AsymmetricKeyException(AsymmetricKeyException::SET_NO_VALUE, "here") };
+    return value.getMessage();
   }
 
   std::string throwInvalidType() {
-    auto decrypting { AsymmetricKeyException(AsymmetricKeyException::INVALID_TYPE, "here") };
-    return decrypting.getMessage();
+    auto invalid_type { AsymmetricKeyException(AsymmetricKeyException::INVALID_TYPE, "here") };
+    return invalid_type.getMessage();
   }
 
   std::string throwInternalError() {
-    auto decrypting { AsymmetricKeyException(AsymmetricKeyException::INTERNAL_ERROR, "here") };
-    return decrypting.getMessage();
+    auto internal { AsymmetricKeyException(AsymmetricKeyException::INTERNAL_ERROR, "here") };
+    return internal.getMessage();
   }
 
   std::string throwUnavailableError() {
-    auto decrypting { AsymmetricKeyException(AsymmetricKeyException::UNAVAILABLE_KEY, "here") };
-    return decrypting.getMessage();
+    auto unavailable_key { AsymmetricKeyException(AsymmetricKeyException::UNAVAILABLE_KEY, "here") };
+    return unavailable_key.getMessage();
   }
 
   std::string throwInvalidAsymmetricKey() {
-    auto decrypting { AsymmetricKeyException(AsymmetricKeyException::INVALID_ASYMMETRIC_KEY, "here") };
-    return decrypting.getMessage();
+    auto invalid_asymmetric { AsymmetricKeyException(AsymmetricKeyException::INVALID_ASYMMETRIC_KEY, "here") };
+    return invalid_asymmetric.getMessage();
   }
 
   protected:
