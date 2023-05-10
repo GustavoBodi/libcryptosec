@@ -30,17 +30,22 @@ class PublicKeyTest: public ::testing::Test {
     }
 
     PublicKey genKeyFromEvp() {
-	    RSA *rsa = RSA_new();
-	    EVP_PKEY *key = EVP_PKEY_new();
-	    EVP_PKEY_assign_RSA(key, rsa);
+      RSA *rsa = RSA_new();
+      EVP_PKEY *key = EVP_PKEY_new();
+      EVP_PKEY_assign_RSA(key, rsa);
       PublicKey chave { key };
       return chave;
     }
 
     void testEvp() {
-	    RSA *rsa = RSA_new();
-	    EVP_PKEY *key = EVP_PKEY_new();
-	    EVP_PKEY_assign_RSA(key, rsa);
+      BIO *buffer { BIO_new( BIO_s_mem() )};
+      BIO_write(buffer, pem_key.c_str(), pem_key.size());
+
+      RSA *rsa = RSA_new();
+      EVP_PKEY *key = EVP_PKEY_new();
+      EVP_PKEY_assign_RSA(key, rsa);
+      key = PEM_read_bio_PUBKEY(buffer, nullptr, nullptr, nullptr);
+
       PublicKey chave { key };
 
       ASSERT_TRUE(chave.getEvpPkey() == key);

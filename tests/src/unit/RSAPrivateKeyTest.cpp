@@ -28,17 +28,22 @@ class RSAPrivateKeyTest: public ::testing::Test {
     }
 
     RSAPrivateKey genKeyFromEvp() {
-	    RSA *rsa = RSA_new();
-	    EVP_PKEY *key = EVP_PKEY_new();
-	    EVP_PKEY_assign_RSA(key, rsa);
+      RSA *rsa = RSA_new();
+      EVP_PKEY *key = EVP_PKEY_new();
+      EVP_PKEY_assign_RSA(key, rsa);
       RSAPrivateKey chave { key };
       return chave;
     }
 
     void testEvp() {
-	    RSA *rsa = RSA_new();
-	    EVP_PKEY *key = EVP_PKEY_new();
-	    EVP_PKEY_assign_RSA(key, rsa);
+      BIO *buffer { BIO_new( BIO_s_mem() )};
+      BIO_write(buffer, pem_key.c_str(), pem_key.size());
+
+      RSA *rsa = RSA_new();
+      EVP_PKEY *key = EVP_PKEY_new();
+      EVP_PKEY_assign_RSA(key, rsa);
+      key = PEM_read_bio_PrivateKey(buffer, nullptr, nullptr, nullptr);
+
       RSAPrivateKey chave { key };
 
       ASSERT_TRUE(chave.getEvpPkey() == key);

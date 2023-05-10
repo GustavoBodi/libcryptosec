@@ -291,9 +291,9 @@ protected:
 
     void testSumOverload(BintPair pair) {
         pairSetLong(pair);
-        pair.first += pair.first;
-        ASSERT_EQ(pair.first.getValue(), longValue * 2);
-        ASSERT_TRUE(pair.first.getValue() == (pair.second * 2).getValue());
+        pair.first += 10;
+        ASSERT_EQ(pair.first.getValue(), pair.first.getValue() + 10);
+        ASSERT_TRUE(pair.first.getValue() == pair.second.getValue() + 10);
     }
 
     void testSumBintOverload(BintPair pair) {
@@ -313,9 +313,9 @@ protected:
 
     void testSubOverload(BintPair pair) {
         pairSetLong(pair);
-        pair.first -= pair.first;
-        ASSERT_EQ(pair.first.getValue(), 0);
-        ASSERT_TRUE(pair.first.getValue() == (pair.second * 0).getValue());
+        pair.first -= 1;
+        ASSERT_EQ(pair.first.getValue(), longValue - 1);
+        ASSERT_TRUE(pair.first.getValue() == (pair.second).getValue() - 1);
     }
 
     void testSubBintOverload(BintPair pair) {
