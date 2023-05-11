@@ -48,7 +48,7 @@ class PublicKeyTest: public ::testing::Test {
 
       PublicKey chave { key };
 
-      ASSERT_TRUE(chave.getEvpPkey() == key);
+      ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
     PublicKey genKeyFromDer() {

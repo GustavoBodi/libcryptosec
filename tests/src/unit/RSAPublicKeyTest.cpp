@@ -49,7 +49,7 @@ class RSAPublicKeyTest: public ::testing::Test {
 
       RSAPublicKey chave { key };
 
-      ASSERT_TRUE(chave.getEvpPkey() == key);
+      ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
     RSAPublicKey genKeyFromDer() {

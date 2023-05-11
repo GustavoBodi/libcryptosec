@@ -46,7 +46,7 @@ class PrivateKeyTest: public ::testing::Test {
 
       PrivateKey chave { key };
 
-      ASSERT_TRUE(chave.getEvpPkey() == key);
+      ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
     PrivateKey genKeyFromDer() {

@@ -46,7 +46,7 @@ class RSAPrivateKeyTest: public ::testing::Test {
 
       RSAPrivateKey chave { key };
 
-      ASSERT_TRUE(chave.getEvpPkey() == key);
+      ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
     RSAPrivateKey genKeyFromDer() {
