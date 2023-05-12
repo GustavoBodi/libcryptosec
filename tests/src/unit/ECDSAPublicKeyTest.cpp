@@ -32,8 +32,8 @@ class ECDSAPublicKeyTest: public ::testing::Test {
     }
 
     ECDSAPublicKey genKeyFromEvp() {
-      EC_KEY *ec = EC_KEY_new();
-      EVP_PKEY *key = EVP_PKEY_new();
+      EC_KEY *ec { EC_KEY_new() };
+      EVP_PKEY *key { EVP_PKEY_new() };
       EVP_PKEY_assign_EC_KEY(key, ec);
       ECDSAPublicKey chave { key };
       return chave;
@@ -55,16 +55,16 @@ class ECDSAPublicKeyTest: public ::testing::Test {
 
     ECDSAPublicKey genKeyFromDer() {
       BIO *buffer;
-      buffer = BIO_new(BIO_s_mem());
+      buffer = BIO_new(BIO_s_mem()) ;
       BIO_write(buffer, pem_key.c_str(), pem_key.size());
-      EC_KEY *inter = PEM_read_bio_EC_PUBKEY(buffer, NULL, NULL, NULL);
-      EVP_PKEY *key = EVP_PKEY_new();
+      EC_KEY *inter { PEM_read_bio_EC_PUBKEY(buffer, NULL, NULL, NULL) };
+      EVP_PKEY *key { EVP_PKEY_new() };
       EVP_PKEY_assign_EC_KEY(key, inter);
 
       unsigned char *data;
-      buffer = BIO_new(BIO_s_mem());
+      buffer = BIO_new(BIO_s_mem()) ;
       i2d_PUBKEY_bio(buffer, key);
-      int ndata = BIO_get_mem_data(buffer, &data);
+      int ndata = BIO_get_mem_data(buffer, &data) ;
       ByteArray ret (data, ndata);
 
       ECDSAPublicKey chave ( ret );
@@ -80,7 +80,7 @@ class ECDSAPublicKeyTest: public ::testing::Test {
       BIO *buffer;
       buffer = BIO_new(BIO_s_mem());
       BIO_write(buffer, pem_key.c_str(), pem_key.size());
-      EC_KEY *key = PEM_read_bio_EC_PUBKEY(buffer, NULL, NULL, NULL);
+      EC_KEY *key { PEM_read_bio_EC_PUBKEY(buffer, NULL, NULL, NULL) };
 
       unsigned char *data;
       buffer = BIO_new(BIO_s_mem());
