@@ -42,9 +42,9 @@ class ECDSAPrivateKeyTest: public ::testing::Test {
       BIO *buffer { BIO_new( BIO_s_mem() )};
       BIO_write(buffer, pem_key.c_str(), pem_key.size());
 
-      RSA *rsa = RSA_new();
+      EC_KEY *ec = EC_KEY_new();
       EVP_PKEY *key = EVP_PKEY_new();
-      EVP_PKEY_assign_RSA(key, rsa);
+      EVP_PKEY_assign_EC_KEY(key, ec);
       key = PEM_read_bio_PrivateKey(buffer, nullptr, nullptr, nullptr);
 
       ECDSAPrivateKey chave { key };
@@ -96,8 +96,6 @@ class ECDSAPrivateKeyTest: public ::testing::Test {
 
     void testKeyFromPem(ECDSAPrivateKey key) {
       std::string key_pem { key.getPemEncoded() };
-      std::cout << key_pem << std::endl;
-      std::cout << pem_key << std::endl;
       ASSERT_TRUE(key_pem == pem_key); 
     }
 
