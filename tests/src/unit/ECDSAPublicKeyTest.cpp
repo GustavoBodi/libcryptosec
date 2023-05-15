@@ -50,7 +50,7 @@ class ECDSAPublicKeyTest: public ::testing::Test {
 
       ECDSAPublicKey chave { key };
 
-      ASSERT_TRUE(chave.getEvpPkey() == key);
+      ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
     ECDSAPublicKey genKeyFromDer() {

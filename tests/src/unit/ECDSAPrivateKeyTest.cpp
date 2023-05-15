@@ -49,7 +49,7 @@ class ECDSAPrivateKeyTest: public ::testing::Test {
 
       ECDSAPrivateKey chave { key };
 
-      ASSERT_TRUE(chave.getEvpPkey() == key);
+      ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
     ECDSAPrivateKey genKeyFromDer() {
