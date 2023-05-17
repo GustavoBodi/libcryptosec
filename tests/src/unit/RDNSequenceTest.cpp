@@ -12,105 +12,133 @@ class RDNSequenceTest : public ::testing::Test {
 
 protected:
     virtual void SetUp() {
-        rdn = new RDNSequence();
     }
 
     virtual void TearDown() {
-        free(rdn);
     }
 
-    void fillCountry (RDNSequence *rdn) {
-        rdn->addEntry(RDNSequence::COUNTRY, RDNSequenceTest::countryOne);
-        rdn->addEntry(RDNSequence::COUNTRY, RDNSequenceTest::countryTwo);
+    RDNSequence genRDNSequence() {
+      RDNSequence rdn;
+
+      for (unsigned int i = 0; i < data.size(); i++) {
+        RDNSequence::EntryType type = (RDNSequence::EntryType) i;
+
+        rdn.addEntry(type, data.at(i));
+      }
+
+      return rdn;
     }
 
-    void fillCommonName(RDNSequence *rdn) {
-        rdn->addEntry(RDNSequence::COMMON_NAME, RDNSequenceTest::commonNameOne);
-        rdn->addEntry(RDNSequence::COMMON_NAME, RDNSequenceTest::commonNameTwo);
+    RDNSequence genRDNSequenceVector() {
+      RDNSequence rdn;
+      rdn.addEntry(RDNSequence::COMMON_NAME, dataVector);
+      return rdn;
     }
 
-    RDNSequence *rdn;
-    static std::string countryName;
-    static std::string countryOne;
-    static std::string countryTwo;
-    static std::string commonNameName;
-    static std::string commonNameOne;
-    static std::string commonNameTwo;
-    static std::string xmlEncoded;
+    std::string genXml() {
+      std::string ret;
+
+      ret = "<RDNSequence>\n";
+
+      for (unsigned int i = 0; i < entryNamesXml.size(); i++) {
+        std::string entryNameXml = entryNamesXml.at(i);
+        std::string entryData = data.at(i);
+
+        ret += "\t<" + entryNameXml + ">" + entryData + "</" + entryNameXml + ">\n";
+      }
+
+      ret += "</RDNSequence>\n";
+
+      return ret;
+    }
+
+    void testGetEntriesType(RDNSequence rdn) {
+      for (unsigned int i = 0; i < data.size(); i++) {
+        std::vector<std::string> entries = rdn.getEntries((RDNSequence::EntryType) i);
+
+        ASSERT_EQ(entries.size(), 1);
+        ASSERT_EQ(entries.at(0), data.at(i));
+      }
+    }
+
+    void testGetEntries(RDNSequence rdn) {
+      std::vector<std::pair<ObjectIdentifier, std::string> > entries = rdn.getEntries();
+
+      for (unsigned int i = 0; i < entries.size(); i++) {
+        std::pair<ObjectIdentifier, std::string> dataPair = entries.at(i);
+
+        ASSERT_EQ(dataPair.first.getName(), entryNames.at(i));
+        ASSERT_EQ(dataPair.second, data.at(i));
+      }
+    }
+
+    void testGetEntriesTypeVector(RDNSequence rdn) {
+      std::vector<std::string> entries = rdn.getEntries(RDNSequence::COMMON_NAME);
+
+      ASSERT_EQ(entries.at(0), dataVector.at(0));
+      ASSERT_EQ(entries.at(1), dataVector.at(1));
+    }
+
+    void testXml(RDNSequence rdn) {
+      std::string xml = genXml();
+
+      ASSERT_EQ(rdn.getXmlEncoded(), xml);
+    }
+  
+    void testGeneric(RDNSequence rdn) {
+      testGetEntriesType(rdn);
+      testGetEntries(rdn);
+      testXml(rdn);
+    }
+
+    void testSanity() {
+      RDNSequence rdn = genRDNSequence();
+      X509_NAME *x509 = rdn.getX509Name();
+      RDNSequence copy(x509);
+
+      testGeneric(copy);
+    }
+
+    static std::vector<std::string> data;
+    static std::vector<std::string> dataVector;
+    static std::vector<std::string> entryNames;
+    static std::vector<std::string> entryNamesXml;
 };
 
 /*
  * Initialization of variables used in the tests
  */
-std::string RDNSequenceTest::countryName = "C";
-std::string RDNSequenceTest::countryOne = "BR";
-std::string RDNSequenceTest::countryTwo = "RB";
+std::vector<std::string> RDNSequenceTest::data {"BR", "SC", "Florianopolis", "UFSC", "LabSEC", "Fulano da Silva", 
+                                                "fulano.da.silva@mail.com", "Codigos Fulano da Silva", "177013", "Dr. Prof. Eng.",
+                                                "da Silva", "Fulano", "FS", "Codigos Fulano", "Jr.", "fulanos-codigo"};
 
-std::string RDNSequenceTest::commonNameName = "CN";
-std::string RDNSequenceTest::commonNameOne = "Common Name";
-std::string RDNSequenceTest::commonNameTwo = "emaN nommoC";
+// As much as having two common names seems weird, its just for testing sake
+std::vector<std::string> RDNSequenceTest::dataVector {"Fulano da Silva", "Fulana de Souza"};
 
-std::string RDNSequenceTest::xmlEncoded = "<RDNSequence>\n\t<countryName>BR</countryName>\n\t<commonName>emaN nommoC</commonName>\n</RDNSequence>\n";
+std::vector<std::string> RDNSequenceTest::entryNames {"C", "ST", "L", "O", "OU", "CN", "emailAddress", "dnQualifier",
+                                                      "serialNumber", "title", "SN", "GN", "initials", "pseudonym",
+                                                      "generationQualifier", "DC"};
 
-TEST_F(RDNSequenceTest, FromX509Name) {
-    X509_NAME *name;
-    RDNSequence fromX509;
+std::vector<std::string> RDNSequenceTest::entryNamesXml {"countryName", "stateOrProvinceName", "localityName", "organizationName",
+                                                         "organizationalUnitName", "commonName", "e-mail", "dnQualifier",
+                                                         "serialNumber", "title", "surname", "givenName", "initials",
+                                                         "pseudonym", "generationQualifier", "domainComponent"};
 
-    rdn->addEntry(RDNSequence::COUNTRY, RDNSequenceTest::countryOne);
-    rdn->addEntry(RDNSequence::COMMON_NAME, RDNSequenceTest::commonNameOne);
-
-    name = rdn->getX509Name();
-    fromX509 = RDNSequence(name);
-
-    ASSERT_EQ(rdn->getXmlEncoded(), fromX509.getXmlEncoded());
+TEST_F(RDNSequenceTest, GetEntriesType) {
+  RDNSequence rdn = genRDNSequence();
+  testGetEntriesType(rdn);
 }
 
-/**
- * @brief Tests adding and getting specific entries from a RDNSequence
- */
-TEST_F(RDNSequenceTest, GetEntriesSpecific) {
-    std::vector<std::string> vector;
-
-    fillCountry(rdn);
-    fillCommonName(rdn);
-
-    vector = rdn->getEntries(RDNSequence::COUNTRY);
-
-    ASSERT_EQ(vector[0], RDNSequenceTest::countryOne);
-    ASSERT_EQ(vector[1], RDNSequenceTest::countryTwo);
-
-    vector = rdn->getEntries(RDNSequence::COMMON_NAME);
-
-    ASSERT_EQ(vector[0], RDNSequenceTest::commonNameOne);
-    ASSERT_EQ(vector[1], RDNSequenceTest::commonNameTwo);
+TEST_F(RDNSequenceTest, GetEntries) {
+  RDNSequence rdn = genRDNSequence();
+  testGetEntries(rdn);
 }
 
-/**
- * @brief Tests adding and then getting all known entries from a RDNSequence
- */
-TEST_F(RDNSequenceTest, GetEntriesGeneral) {
-    std::vector< std::pair<ObjectIdentifier, std::string> > vector;
-
-    fillCountry(rdn);
-    fillCommonName(rdn);
-
-    vector = rdn->getEntries();
-
-    ASSERT_EQ(vector[0].first.getName(), RDNSequenceTest::countryName);
-    ASSERT_EQ(vector[0].second, RDNSequenceTest::countryOne);
-    ASSERT_EQ(vector[1].second, RDNSequenceTest::countryTwo);
-
-    ASSERT_EQ(vector[2].first.getName(), RDNSequenceTest::commonNameName);
-    ASSERT_EQ(vector[2].second, RDNSequenceTest::commonNameOne);
-    ASSERT_EQ(vector[3].second, RDNSequenceTest::commonNameTwo);
+TEST_F(RDNSequenceTest, XMLEncoded) {
+  RDNSequence rdn = genRDNSequence();
+  testXml(rdn);
 }
 
-/**
- * @brief Tests getting data in XML format from a RDNSequence
- */
-TEST_F(RDNSequenceTest, GetXmlEncoded) {
-    rdn->addEntry(RDNSequence::COUNTRY, RDNSequenceTest::countryOne);
-    rdn->addEntry(RDNSequence::COMMON_NAME, RDNSequenceTest::commonNameTwo);
-
-    ASSERT_EQ(rdn->getXmlEncoded(), RDNSequenceTest::xmlEncoded);
+TEST_F(RDNSequenceTest, Sanity) {
+  testSanity();
 }
