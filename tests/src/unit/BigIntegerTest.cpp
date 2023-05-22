@@ -11,6 +11,9 @@
 class BigIntegerTest : public ::testing::Test {
 
 protected:
+    /**
+     * @brief Tipo de uso interno para teste em pares
+     */
     using BintPair = std::pair<BigInteger, BigInteger>;
 
     virtual void SetUp() {
@@ -19,28 +22,43 @@ protected:
     virtual void TearDown() {
     }
 
+    /**
+     * @brief Atribui para ambos os valores da representação intermediário do par um valor
+     */
     void pairSetLong(BintPair &pair) {
         pair.first.setValue(longValue);
         pair.second.setValue(longValue);
     }
 
+    /**
+     * @brief Atribui para ambos os valores da representação intermediário do par um valor negativo
+     */
     void pairSetLongNeg(BintPair &pair) {
         pair.first.setValue(longValueNeg);
         pair.second.setValue(longValueNeg);
     }
 
+    /**
+     * @brief Cria uma par a partir de uma BigInteger vazia e o copia para outro BigInteger
+     */
     BintPair CreatePairFromEmpty() {
         BigInteger bi_empty = BigInteger();
         BigInteger copy{bi_empty};
         return std::make_pair(bi_empty, copy);
     }
 
+    /**
+     * @brief Cria uma par a partir do construtor default com valores dados
+     */
     BintPair CreatePairFromDefault() {
         BigInteger bi_default{longValue};
         BigInteger copy{bi_default};
         return std::make_pair(bi_default, copy);
     }
 
+    /**
+     * @brief Cria um par de BigInteger a partir de uma BigInteger do OpenSSL
+     */
     BintPair CreatePairFromBigNum() {
         BIGNUM *p = BN_new();
         BN_bin2bn((unsigned char *) "\x01\x02\x03", 3, p);
@@ -49,6 +67,9 @@ protected:
         return std::make_pair(bi_bignum, copy);
     }
 
+    /**
+     * @brief Cria um par de BigInteger a partir de um ASN1_INTEGER do OPENSSL
+     */
     BintPair CreatePairFromASN1() {
         ASN1_INTEGER *ans_int = ASN1_INTEGER_new();
         ASN1_INTEGER_set(ans_int, longValue);
@@ -57,12 +78,18 @@ protected:
         return std::make_pair(bi_ans1, copy);
     }
 
+    /**
+     * @brief Cria um par a partir de uma String
+     */
     BintPair CreatePairFromString() {
         BigInteger bi_str{decValue};
         BigInteger copy{bi_str};
         return std::make_pair(bi_str, copy);
     }
 
+    /**
+     * @brief Cria um par a partir de um ByteArray
+     */
     BintPair CreatePairFromByteArray() {
         BigInteger bi{longValue};
         ByteArray ba{*bi.getBinValue()};
@@ -71,6 +98,9 @@ protected:
         return std::make_pair(bi_ba, copy);
     }
 
+    /**
+     * @brief Cria um par a partir de um BigInteger
+     */
     BintPair CreatePairFromBigInteger() {
         BigInteger bi{longValue};
         BigInteger biFromRef{bi};
@@ -78,6 +108,9 @@ protected:
         return std::make_pair(biFromRef, copy);
     }
 
+    /**
+     * @brief Testa todas as operações para os respectivos construtores
+     */
     void testGeneric(BintPair pair) {
         testGetValue(pair);
         testIsNegative(pair);
@@ -110,18 +143,27 @@ protected:
         testGetBinValueNeg(pair);
     }
 
+    /**
+     * @brief Testa se o valor do Getter corresponde ao esperado
+     */
     void testGetValue(BintPair pair) {
         pairSetLong(pair);
         ASSERT_EQ(pair.first.getValue(), pair.second.getValue());
         ASSERT_EQ(pair.first.getValue(), longValue);
     }
 
+    /**
+     * @brief Testa se o valor do Getter para valores negativos corresponde ao esperado
+     */
     void testGetValueNeg(BintPair pair) {
         pairSetLongNeg(pair);
         ASSERT_EQ(pair.first.getValue(), pair.second.getValue());
         ASSERT_EQ(pair.first.getValue(), longValueNeg);
     }
 
+    /**
+     * @brief Testa o método que indica se o valor é negativo
+     */
     void testIsNegative(BintPair pair) {
         pair.first.setValue(longValueNeg);
         pair.second.setValue(longValue);
@@ -129,6 +171,9 @@ protected:
         ASSERT_TRUE(!pair.second.isNegative());
     }
 
+    /**
+     * @brief Testa o Getter que converte o valor para ASN1
+     */
     void testGetASN1(BintPair pair) {
         ASN1_INTEGER *ans_int = ASN1_INTEGER_new();
         ASN1_INTEGER_set(ans_int, longValue);
@@ -146,6 +191,9 @@ protected:
         ASSERT_EQ(*part1, *part2);
     }
 
+    /**
+     * @brief Testa o Getter que converte o valor para ASN1 para valores negativos
+     */
     void testGetASN1Neg(BintPair pair) {
         pairSetLongNeg(pair);
         ASN1_INTEGER *ans_int_2 = ASN1_INTEGER_new();
@@ -157,6 +205,9 @@ protected:
         ASSERT_EQ(*part3, *part4);
     }
 
+    /**
+     * @brief Testa o Getter de valores Bin
+     */
     void testGetBinValue(BintPair pair) {
         BigInteger bi;
         ASSERT_EQ(0, bi.getValue());
@@ -168,6 +219,9 @@ protected:
         ASSERT_EQ(pair.first.getValue(), biTest.getValue());
     }
 
+    /**
+     * @brief Testa o Getter de valores Bin negativos
+     */
     void testGetBinValueNeg(BintPair pair) {
         BigInteger bi;
         ASSERT_EQ(0, bi.getValue());
@@ -179,6 +233,9 @@ protected:
         ASSERT_EQ(pair.second.getValue(), biTestNeg.getValue());
     }
 
+    /**
+     * @brief Testa o Getter para BigNums do OpenSSL
+     */
     void testGetBigNum(BintPair pair) {
         pairSetLong(pair);
         auto res = BN_bn2dec(pair.first.getBIGNUM());
@@ -192,6 +249,9 @@ protected:
         ASSERT_EQ(BigIntegerTest::decValue, chr);
     }
 
+    /**
+     * @brief Testa a conversão para Hexadecimal
+     */
     void testToHex(BintPair pair) {
         pairSetLong(pair);
         ASSERT_EQ(pair.first.toHex(), pair.second.toHex());
@@ -199,6 +259,9 @@ protected:
         ASSERT_EQ(pair.second.toHex(), hexValue);
     }
 
+    /**
+     * @brief Testa a conversão para Hexadecimais Negativos
+     */
     void testToHexNeg(BintPair pair) {
         pairSetLongNeg(pair);
         ASSERT_EQ(pair.first.toHex(), pair.second.toHex());
@@ -206,6 +269,9 @@ protected:
         ASSERT_EQ(pair.second.toHex(), hexValueNeg);
     }
 
+    /**
+     * @brief Testa a conversão para valores Decimais
+     */
     void testToDec(BintPair pair) {
         pairSetLong(pair);
         ASSERT_EQ(pair.first.toDec(), pair.second.toDec());
@@ -213,6 +279,9 @@ protected:
         ASSERT_EQ(pair.second.toDec(), decValue);
     }
 
+    /**
+     * @brief Testa a conversão para valores Decimais Negativos
+     */
     void testToDecNeg(BintPair pair) {
         pairSetLongNeg(pair);
         ASSERT_EQ(pair.first.toDec(), pair.second.toDec());
@@ -220,6 +289,9 @@ protected:
         ASSERT_EQ(pair.second.toDec(), decValueNeg);
     }
 
+    /**
+     * @brief Testa se o Setter para valores hexadecimais funciona
+     */
     void testSetHexValue(BintPair pair) {
         pair.first.setHexValue(hexValue);
         pair.second.setHexValue(hexValue);
@@ -228,6 +300,9 @@ protected:
         ASSERT_EQ(pair.second.toHex(), hexValue);
     }
 
+    /**
+     * @brief Testa se o Setter para valores hexadecimais negativos funciona
+     */
     void testSetHexValueNeg(BintPair pair) {
         pair.first.setHexValue(hexValueNeg);
         pair.second.setHexValue(hexValueNeg);
@@ -236,6 +311,9 @@ protected:
         ASSERT_EQ(pair.second.toHex(), hexValueNeg);
     }
 
+    /**
+     * @brief Testa se o Setter para valores Decimais funciona
+     */
     void testSetDec(BintPair pair) {
         pair.first.setDecValue(decValue);
         pair.second.setDecValue(decValue);
@@ -244,6 +322,9 @@ protected:
         ASSERT_EQ(pair.second, decValue);
     }
 
+    /**
+     * @brief Testa se o Setter para valores Decimais Negativos funciona
+     */
     void testSetDecNeg(BintPair pair) {
         pair.first.setDecValue(decValueNeg);
         pair.second.setDecValue(decValueNeg);
@@ -252,6 +333,9 @@ protected:
         ASSERT_EQ(pair.second, decValueNeg);
     }
 
+    /**
+     * @brief Testa a geração aleatória de números (por acaso do destino pode falhar)
+     */
     void testSetRandValue(BintPair pair) {
         pair.first.setRandValue(size);
         pair.second.setRandValue(size);
@@ -259,6 +343,9 @@ protected:
         ASSERT_TRUE(pair.first.getValue() != 0);
     }
 
+    /**
+     * @brief Testa o Setter para os valores dados
+     */
     void testSetValue(BintPair pair) {
         pair.first.setValue(longValue);
         ASSERT_EQ(pair.first, longValue);
@@ -268,6 +355,9 @@ protected:
         ASSERT_EQ(pair.first.getValue(), pair.second.getValue());
     }
 
+    /**
+     * @brief Testa se o tamanho da representação interna corresponde ao esperado
+     */
     void testSize(BintPair pair) {
         pairSetLong(pair);
         ASSERT_EQ(pair.first.size(), pair.second.size());
@@ -276,6 +366,9 @@ protected:
         ASSERT_EQ(pair.second.size(), sizeNeg);
     }
 
+    /**
+     * @brief Testa se o soma para o tipo funciona corretamente
+     */
     void testSum(BintPair pair) {
         pairSetLong(pair);
         pair.first = pair.first + 2;
@@ -283,12 +376,18 @@ protected:
         ASSERT_TRUE(pair.first.getValue() == (pair.second + 2).getValue());
     }
 
+    /**
+     * @brief Testa se a soma entre tipos funciona corretamente
+     */
     void testSumBint(BintPair pair) {
         pair.first = 1;
         pair.second = 10;
         ASSERT_TRUE(pair.first + pair.second == 11);
     }
 
+    /**
+     * @brief Testa se o operador de soma overloaded funciona corretamente
+     */
     void testSumOverload(BintPair pair) {
         pairSetLong(pair);
         pair.first += 10;
@@ -296,6 +395,9 @@ protected:
         ASSERT_TRUE(pair.first.getValue() == pair.second.getValue() + 10);
     }
 
+    /**
+     * @brief Testa se a soma entre overloadeds funciona corretamente
+     */
     void testSumBintOverload(BintPair pair) {
         pair.first = 1;
         pair.second = 10;
@@ -304,6 +406,9 @@ protected:
         ASSERT_EQ(pair.second, 10);
     }
 
+    /**
+     * @brief Testa se a subtração funciona corretamente
+     */
     void testSub(BintPair pair) {
         pairSetLong(pair);
         pair.first += -2;
@@ -311,6 +416,9 @@ protected:
         ASSERT_TRUE(pair.first.getValue() == (pair.second - 2).getValue());
     }
 
+    /**
+     * @brief Testa se a subtração Overloaded funciona corretamente
+     */
     void testSubOverload(BintPair pair) {
         pairSetLong(pair);
         pair.first -= 1;
@@ -318,6 +426,9 @@ protected:
         ASSERT_TRUE(pair.first.getValue() == (pair.second).getValue() - 1);
     }
 
+    /**
+     * @brief Testa se a subtração entre os tipos overloaded funciona corretamente
+     */
     void testSubBintOverload(BintPair pair) {
         pair.first = 1;
         pair.second = 10;
@@ -326,6 +437,9 @@ protected:
         ASSERT_EQ(pair.second, 10);
     }
 
+    /**
+     * @brief Testa se o método compare corresponde ao esperado
+     */
     void testCompare(BintPair pair) {
         pairSetLong(pair);
         ASSERT_EQ(pair.first.compare(pair.second), 0);
@@ -335,11 +449,17 @@ protected:
         ASSERT_EQ(pair.first.compare(pair.second), 1);
     }
 
+    /**
+     * @brief Testa se o operador overloaded de igual funciona
+     */
     void testEquals(BintPair pair) {
         pairSetLong(pair);
         ASSERT_TRUE(pair.first == pair.second);
     }
 
+    /**
+     * @brief Testa se o operador overloaded de diferente funciona corretamente
+     */
     void testDifferent(BintPair pair) {
         pairSetLong(pair);
         pair.first += 1;
