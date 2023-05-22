@@ -20,6 +20,9 @@ protected:
     virtual void TearDown() {
     }
 
+    /**
+     * @brief Gera um ByteArray a partir de um stream de chars
+     */
     BytePair generateFromStream() {
         std::ostringstream oss;
         oss.str(ByteArrayTest::stringASCII);
@@ -28,12 +31,18 @@ protected:
         return std::make_pair(ba_stream, copy);
     }
 
+    /**
+     * @brief Gera um ByteArray a partir de uma String
+     */
     BytePair generateFromString() {
         ByteArray ba_str(ByteArrayTest::stringASCII);
         ByteArray copy = ba_str;
         return std::make_pair(ba_str, copy);
     }
 
+    /**
+     * @brief Gera um ByteArray a partir de um unsigned
+     */
     BytePair generateFromUnsigned() {
         auto uchar = chr;
         ByteArray ba_unsigned{uchar, size};
@@ -41,6 +50,9 @@ protected:
         return std::make_pair(ba_unsigned, copy);
     }
 
+    /**
+     * @brief Gera um ByteArray a partir de um ponteiro de unsigned
+     */
     BytePair generateFromPointers() {
         ByteArray ba_pnt;
 
@@ -51,9 +63,11 @@ protected:
         return std::make_pair(ba_pnt, copy);
     }
 
+    /**
+     * @brief Gera um ByteArray a partir da cópia de chars
+     */
     BytePair generateFromCharCopy() {
         ByteArray ba_cp;
-
         auto chr_cp = make_unique<unsigned char[]>(ByteArrayTest::size);
         memcpy(chr_cp.get(), ByteArrayTest::chr, ByteArrayTest::size);
         ba_cp.copyFrom(chr_cp.get(), ByteArrayTest::size);
@@ -61,55 +75,88 @@ protected:
         return std::make_pair(ba_cp, copy);
     }
 
+    /**
+     * @brief Testa se Classe levanta um out_of_range quando há tentativa de indexar fora do esperado
+     */
     void testThrowInvalid() {
         ByteArray ba;
         ASSERT_THROW(ba[0], out_of_range);
         ASSERT_THROW(ba.at(0), out_of_range);
     }
 
+    /**
+     * @brief Testa o separador de hexadecimal
+     */
     void testHexSeparator() {
         ByteArray ba{simpleASCII};
         ASSERT_EQ(ba.toHex('-'), ByteArrayTest::simpleHexSeparator);
     }
 
+    /**
+     * @brief Teste de sanidade de conversão de Strings
+     */
     void testCompareString(BytePair ba_pair) {
         ASSERT_EQ(ba_pair.first.toString(), ba_pair.second.toString());
         ASSERT_EQ(ba_pair.first.toString(), stringASCII);
     }
 
+    /**
+     * @brief Teste de sanidade de conversão de Hexadecimal
+     */
     void testCompareHex(BytePair ba_pair) {
         ASSERT_EQ(ba_pair.first.toHex(), ba_pair.second.toHex());
         ASSERT_EQ(ba_pair.first.toHex(), stringHex);
     }
 
+    /**
+     * @brief Teste de sanidade para igualdade
+     */
     void testCompareEqual(BytePair ba_pair) {
         ASSERT_EQ(ba_pair.first, ba_pair.second);
     }
 
+    /**
+     * @brief Teste do operador overloaded de igualdade
+     */
     void testOverloadedEquals(BytePair ba_pair) {
         ASSERT_TRUE(ba_pair.first == ba_pair.second);
     }
 
+    /**
+     * @brief Teste do operador overloaded de diferença
+     */
     void testOverloadedDifferent(BytePair ba_pair) {
         ASSERT_FALSE(ba_pair.first != ba_pair.second);
     }
 
+    /**
+     * @brief Teste para conversão de um stream em String
+     */
     void testStreamToString(BytePair ba_pair) {
         unique_ptr<std::istringstream> iss{ba_pair.first.toStream()};
         ASSERT_EQ(iss->str(), ba_pair.second.toString());
         ASSERT_EQ(iss->str(), stringASCII);
     }
 
+    /**
+     * @brief Teste para checar se a representação interna tem o tamanho esperado
+     */
     void testSize(BytePair ba_pair) {
         ASSERT_EQ(ba_pair.first.size(), ba_pair.second.size());
         ASSERT_EQ(ba_pair.first.size(), size);
     }
 
+    /**
+     * @brief Teste para checar a indexação de chars
+     */
     void testChar(BytePair ba_pair) {
         ASSERT_EQ(ba_pair.first.at(10), ba_pair.second.at(10));
         ASSERT_EQ(ba_pair.second.at(10), compChar);
     }
 
+    /**
+     * @brief Teste genérico para os construtores
+     */
     void testGeneric(BytePair pair) {
         testCompareString(pair);
         testCompareHex(pair);
