@@ -1,6 +1,6 @@
 #include "libcryptosec/Random.h"
-#include <openssl/rsa.h>
 
+#include <openssl/rsa.h>
 #include <openssl/evp.h>
 #include <openssl/ossl_typ.h>
 #include <sstream>
@@ -16,50 +16,73 @@ class RandomTest: public ::testing::Test {
 
     }
 
-    void Bytes() {
-
+    ByteArray genBytes() {
+      return Random::bytes(length);
     }
 
-    void PseudoBytes() {
-
+    void checkBytes() {
+      ASSERT_TRUE(genBytes() != ByteArray(0));
+      ASSERT_TRUE(genBytes().size() >= 1);
     }
 
-    void SeedData() {
+    // TODO
+    //void randomTest(ByteArray seed) {
+    //  seedData(seed);
+    //  ByteArray a = genBytes();
+    //  seedData(seed);
+    //  ByteArray b = genBytes();
+    //  ASSERT_EQ(a, b);
+    //}
 
+    ByteArray genPseudo() {
+      return Random::pseudoBytes(length);
     }
 
-    void SeedFile() {
-
+    void seedData(ByteArray bytes) {
+      Random::seedData(bytes);
     }
 
-    void CleanSeed() {
-
+    void cleanSeed() {
+      Random::cleanSeed();
     }
 
-    void Status() {
-
+    void cleanSeedSanityTest() {
+      ByteArray a = genBytes();
+      cleanSeed();
+      ByteArray b = genBytes();
+      ASSERT_TRUE( a != b );
     }
 
-    static std::string bytes_test;
-    static std::string seed;
+    void randomStatus() {
+      ASSERT_TRUE(Random::status());
+    }
+
+    static int length;
 };
 
-
-TEST_F(RandomTest, BytesTest) {
-}
-
-TEST_F(RandomTest, PseudoBytesTest) {
-}
+int RandomTest::length = 10;
 
 TEST_F(RandomTest, SeedDataTest) {
+  seedData(ByteArray("Testando aqui"));
 }
 
-TEST_F(RandomTest, SeedFileTest) {
+TEST_F(RandomTest, GenBytesTest) {
+  genBytes();
 }
+
+TEST_F(RandomTest, CheckBytesTest) {
+  genBytes();
+}
+
+TEST_F(RandomTest, GenPseudoBytesTest) {
+  genPseudo();
+}
+
 
 TEST_F(RandomTest, CleanSeedTest) {
+  cleanSeedSanityTest();
 }
 
-TEST_F(RandomTest, StatusTest) {
+TEST_F(RandomTest, RandomStatusTest) {
+  randomStatus();
 }
-
