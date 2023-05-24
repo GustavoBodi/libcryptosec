@@ -10,6 +10,9 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
+/**
+ * @brief Testes unitários da classe RSAPrivateKey
+ */
 class RSAPrivateKeyTest: public ::testing::Test {
   protected:
     using KeyPair = std::pair<RSAPrivateKey, PrivateKey>;
@@ -21,12 +24,18 @@ class RSAPrivateKeyTest: public ::testing::Test {
 
     }
 
+  /**
+   * @brief Gera uma par de chaves RSA a partir de um PEM
+   */
     KeyPair genPairPem() {
       RSAPrivateKey first { genKeyFromPem() };
       RSAPrivateKey second { genKeyFromPem() };
       return std::make_pair(first, second);
     }
 
+  /**
+   * @brief Gera uma chave RSA a partir de uma chave EVP do OpenSSL
+   */
     RSAPrivateKey genKeyFromEvp() {
       RSA *rsa = RSA_new();
       EVP_PKEY *key = EVP_PKEY_new();
@@ -35,6 +44,9 @@ class RSAPrivateKeyTest: public ::testing::Test {
       return chave;
     }
 
+  /**
+   * @brief Testas as chaves Evp extraídas do wrapper
+   */
     void testEvp() {
       BIO *buffer { BIO_new( BIO_s_mem() )};
       BIO_write(buffer, pem_key.c_str(), pem_key.size());
@@ -49,6 +61,9 @@ class RSAPrivateKeyTest: public ::testing::Test {
       ASSERT_TRUE(chave.getEvpPkey() == key);
     }
 
+  /**
+   * @brief Gera uma Chave a partir de um DerEncoded (ByteArray)
+   */
     RSAPrivateKey genKeyFromDer() {
       BIO *buffer;
       buffer = BIO_new(BIO_s_mem());
@@ -65,16 +80,25 @@ class RSAPrivateKeyTest: public ::testing::Test {
       return chave;
     }
 
+  /**
+   * @brief Gera uma chave com o PEM
+   */
     RSAPrivateKey genKeyFromPem() {
       RSAPrivateKey chave ( pem_key );
       return chave;
     }
 
+  /**
+   * @brief Gera chaves RSA a prtir de um PEM com senha
+   */
     RSAPrivateKey genKeyFromPemPass() {
       RSAPrivateKey chave (pem_key_pass, pass);
       return chave;
     }
 
+  /**
+   * @brief Testas as chaves geradas a partir de um DER (ByteArray)
+   */
     void testKeyFromDer(RSAPrivateKey passed_key) {
       BIO *buffer;
       buffer = BIO_new(BIO_s_mem());
@@ -89,19 +113,33 @@ class RSAPrivateKeyTest: public ::testing::Test {
       ASSERT_TRUE(passed_key.getDerEncoded() == key_from_evp);
     }
 
+  /**
+   * @brief Teste de sanidade para chaves geradas a partir do PEM
+   */
     void testKeyFromPem(RSAPrivateKey key) {
       std::string key_pem { key.getPemEncoded() };
       ASSERT_TRUE(key_pem == pem_key); 
     }
 
+  /**
+   * @brief Checa o tamanho do menor buffer para o máximo 
+   * necessário para as operações do OpenSSL, checar documentação,
+   * o tamanho aqui bate por acaso
+   */
     void testSizeBits(RSAPrivateKey key) {
       ASSERT_EQ(key.getSizeBits(), size);
     }
 
+  /**
+   * @brief Checa o tamanho da chave
+   */
     void testSizeBytes(RSAPrivateKey key) {
       ASSERT_EQ(key.getSize(), size / 8);
     }
 
+  /**
+   * @brief Teste de sanidade para a igualdade
+   */
     void testEquals() {
       RSAPrivateKey chave ( pem_key );
       RSAPrivateKey chave2 ( pem_key );
@@ -190,4 +228,3 @@ TEST_F(RSAPrivateKeyTest, EqualsTest) {
 TEST_F(RSAPrivateKeyTest, EvpTest) {
   testEvp();
 }
-
