@@ -71,7 +71,7 @@ TEST_F(RandomTest, GenBytesTest) {
 }
 
 TEST_F(RandomTest, CheckBytesTest) {
-  genBytes();
+  checkBytes();
 }
 
 TEST_F(RandomTest, GenPseudoBytesTest) {
