@@ -47,9 +47,12 @@ OBJS += $(TEST_SRCS:.cpp=.o)
 	./$(NAME) --gtest_filter='EngineDeathTest.*:EngineTest.*'
 	@echo 'Done!'
 
+.test:
+	./teste.out
+
 ########### TARGETS ##################################
 
-all: .comp
+all: .comp .test
 
 test: test_dynamic
 
