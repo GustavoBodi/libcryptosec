@@ -117,16 +117,16 @@ class RSAPublicKeyTest: public ::testing::Test {
     }
 
   /**
-   * @brief Checa o tamanho do menor buffer para o máximo 
-   * necessário para as operações do OpenSSL, checar documentação,
-   * o tamanho aqui bate por acaso
+   * @brief Checa o tamanho da chave
    */
     void testSizeBits(RSAPublicKey key) {
       ASSERT_EQ(key.getSizeBits(), size);
     }
 
   /**
-   * @brief Checa o tamanho da chave
+   * @brief Checa o tamanho do menor buffer para o máximo 
+   * necessário para as operações do OpenSSL, checar documentação,
+   * o tamanho aqui bate por acaso
    */
     void testSizeBytes(RSAPublicKey key) {
       ASSERT_EQ(key.getSize(), size / 8);
