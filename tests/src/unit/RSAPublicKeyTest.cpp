@@ -13,6 +13,9 @@
 #include <sstream>
 #include <gtest/gtest.h>
 
+/**
+ * @brief Testes unitários da classe RSAPublicKey
+ */
 class RSAPublicKeyTest: public ::testing::Test {
   protected:
     using KeyPair = std::pair<RSAPublicKey, RSAPublicKey>;
@@ -24,12 +27,18 @@ class RSAPublicKeyTest: public ::testing::Test {
 
     }
 
+  /**
+   * @brief Gera uma par de chaves RSA a partir de um PEM
+   */
     KeyPair genPairPem() {
       RSAPublicKey first { genKeyFromPem() };
       RSAPublicKey second { genKeyFromPem() };
       return std::make_pair(first, second);
     }
 
+  /**
+   * @brief Gera uma chave RSA a partir de uma chave EVP do OpenSSL
+   */
     RSAPublicKey genKeyFromEvp() {
       RSA *rsa = RSA_new();
       EVP_PKEY *key = EVP_PKEY_new();
@@ -38,6 +47,9 @@ class RSAPublicKeyTest: public ::testing::Test {
       return chave;
     }
 
+  /**
+   * @brief Testas as chaves Evp extraídas do wrapper
+   */
     void testEvp() {
       BIO *buffer { BIO_new( BIO_s_mem() )};
       BIO_write(buffer, pem_key.c_str(), pem_key.size());
@@ -52,6 +64,9 @@ class RSAPublicKeyTest: public ::testing::Test {
       ASSERT_TRUE(chave.getPemEncoded() == pem_key);
     }
 
+  /**
+   * @brief Gera uma Chave a partir de um DerEncoded (ByteArray)
+   */
     RSAPublicKey genKeyFromDer() {
       BIO *buffer;
       buffer = BIO_new(BIO_s_mem());
@@ -68,11 +83,17 @@ class RSAPublicKeyTest: public ::testing::Test {
       return chave;
     }
 
+  /**
+   * @brief Gera uma chave com o PEM
+   */
     RSAPublicKey genKeyFromPem() {
       RSAPublicKey chave ( pem_key );
       return chave;
     }
 
+  /**
+   * @brief Testas as chaves geradas a partir de um DER (ByteArray)
+   */
     void testKeyFromDer(RSAPublicKey passed_key) {
       BIO *buffer;
       buffer = BIO_new(BIO_s_mem());
@@ -87,19 +108,33 @@ class RSAPublicKeyTest: public ::testing::Test {
       ASSERT_TRUE(passed_key.getDerEncoded() == key_from_evp);
     }
 
+  /**
+   * @brief Teste de sanidade para chaves geradas a partir do PEM
+   */
     void testKeyFromPem(RSAPublicKey key) {
       std::string key_pem { key.getPemEncoded() };
       ASSERT_TRUE(key_pem == pem_key); 
     }
 
+  /**
+   * @brief Checa o tamanho da chave
+   */
     void testSizeBits(RSAPublicKey key) {
       ASSERT_EQ(key.getSizeBits(), size);
     }
 
+  /**
+   * @brief Checa o tamanho do menor buffer para o máximo 
+   * necessário para as operações do OpenSSL, checar documentação,
+   * o tamanho aqui bate por acaso
+   */
     void testSizeBytes(RSAPublicKey key) {
       ASSERT_EQ(key.getSize(), size / 8);
     }
 
+  /**
+   * @brief Teste de sanidade para a igualdade
+   */
     void testEquals() {
       RSAPublicKey chave ( pem_key );
       RSAPublicKey chave2 ( pem_key );
