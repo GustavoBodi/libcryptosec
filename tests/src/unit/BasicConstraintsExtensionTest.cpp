@@ -30,12 +30,14 @@ protected:
       X509_EXTENSION *ret;
       BASIC_CONSTRAINTS_st *basicConstraints;
       basicConstraints = BASIC_CONSTRAINTS_new();
-      basicConstraints->ca = 255;
+      basicConstraints->ca = 0;
       basicConstraints->pathlen = ASN1_INTEGER_new();
       ASN1_INTEGER_set(basicConstraints->pathlen, path);
-      ret = X509V3_EXT_i2d(NID_basic_constraints, true, (void *)basicConstraints);
-      BASIC_CONSTRAINTS_free(basicConstraints);
-      return ret;
+      ret = X509V3_EXT_i2d(NID_basic_constraints, false, (void *)basicConstraints);
+
+      auto ext = BasicConstraintsExtension(ret);
+
+      return ext;
     }
 
     void XmlEncoded(BasicConstraintsExtension ext) {
@@ -70,6 +72,10 @@ protected:
 
     void GetPath(BasicConstraintsExtension ext) {
       ASSERT_EQ(ext.getPathLen(), -1);
+    }
+
+    void GetPathX509(BasicConstraintsExtension ext) {
+      ASSERT_EQ(ext.getPathLen(), path);
     }
 
     void SetCA(BasicConstraintsExtension ext) {
@@ -133,8 +139,20 @@ TEST_F(BasicConstraintsExtensionTest, ExtensionConstructorTest) {
   ExtensionConstructor();
 }
 
+TEST_F(BasicConstraintsExtensionTest, getCAX509Test) {
+  GetCA(ExtensionConstructor());
+}
+
+TEST_F(BasicConstraintsExtensionTest, getPathX509Test) {
+  GetPathX509(ExtensionConstructor());
+}
+
 TEST_F(BasicConstraintsExtensionTest, XmlTest) {
   XmlEncoded(DefaultConstructor());
+}
+
+TEST_F(BasicConstraintsExtensionTest, IsCriticalX509Test) {
+  IsCritical(ExtensionConstructor());
 }
 
 TEST_F(BasicConstraintsExtensionTest, XmlTabbedTest) {
