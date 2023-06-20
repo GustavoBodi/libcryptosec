@@ -63,7 +63,7 @@ SymmetricCipher::SymmetricCipher(SymmetricKey &key, SymmetricCipher::OperationMo
 
 SymmetricCipher::~SymmetricCipher()
 {
-	EVP_CIPHER_CTX_free(this->ctx);
+	//EVP_CIPHER_CTX_free(this->ctx);
 	if (this->buffer)
 	{
 		delete this->buffer;
@@ -115,6 +115,7 @@ void SymmetricCipher::init(SymmetricKey &key, SymmetricCipher::OperationMode mod
 		delete this->buffer;
 		this->buffer = NULL;
 	}
+  this->mode = mode;
 	const EVP_CIPHER *cipher;
 	ByteArray keyEncoded, *newKey, *iv;
 	std::pair<ByteArray*, ByteArray*> keyIv;
