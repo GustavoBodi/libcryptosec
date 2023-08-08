@@ -119,7 +119,6 @@ protected:
     void testPolicyQualifierInfoUN(PolicyQualifierInfo pqi) {
       UserNotice un = pqi.getUserNotice();
 
-      ASSERT_EQ(pqi.getType(), PolicyQualifierInfo::USER_NOTICE);
       ASSERT_EQ(pqi.getCpsUri(), "");
       testUserNotice(un);
     }
@@ -157,10 +156,28 @@ protected:
       ASSERT_EQ(pqi.getType(), PolicyQualifierInfo::USER_NOTICE);
     }
 
+    void testEmptyGeneric(PolicyQualifierInfo pqi) {
+      testEmptyPolicyQualifierInfo(pqi);
+      testOidEmptyPolicyQualifierInfo(pqi);
+      testTypeEmptyPolicyQualifierInfo(pqi);
+    }
+
+    void testCpsUriGeneric(PolicyQualifierInfo pqi) {
+      testPolicyQualifierInfoCpsUri(pqi);
+      testOidPolicyQualifierInfoCpsUri(pqi);
+      testTypePolicyQualifierInfoCpsUri(pqi);
+    }
+
+    void testUNGeneric(PolicyQualifierInfo pqi) {
+      testPolicyQualifierInfoUN(pqi);
+      testOidPolicyQualifierInfoUN(pqi);
+      testTypePolicyQualifierInfoUN(pqi);
+    }
+
     void testSanityNull() {
       PolicyQualifierInfo copy = PolicyQualifierInfo(NULL);
 
-      testEmptyPolicyQualifierInfo(copy);
+      testEmptyGeneric(copy);
     }
 
     void testSanityEmpty() {
@@ -168,8 +185,8 @@ protected:
       POLICYQUALINFO *x509 = pqi.getPolicyQualInfo();
       PolicyQualifierInfo copy = PolicyQualifierInfo(x509);
 
-      testEmptyPolicyQualifierInfo(pqi);
-      testEmptyPolicyQualifierInfo(copy);
+      testEmptyGeneric(pqi);
+      testEmptyGeneric(copy);
     }
 
     void testSanityCpsUri() {
@@ -177,8 +194,8 @@ protected:
       POLICYQUALINFO *x509 = pqi.getPolicyQualInfo();
       PolicyQualifierInfo copy = PolicyQualifierInfo(x509);
 
-      testPolicyQualifierInfoCpsUri(pqi);
-      testPolicyQualifierInfoCpsUri(copy);
+      testCpsUriGeneric(pqi);
+      testCpsUriGeneric(copy);
     }
 
     void testSanityUN() {
@@ -186,8 +203,8 @@ protected:
       POLICYQUALINFO *x509 = pqi.getPolicyQualInfo();
       PolicyQualifierInfo copy = PolicyQualifierInfo(x509);
 
-      testPolicyQualifierInfoUN(pqi);
-      testPolicyQualifierInfoUN(copy);
+      testUNGeneric(pqi);
+      testUNGeneric(copy);
     }
 
     void testXmlEmpty() {
