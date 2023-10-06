@@ -10,6 +10,8 @@ SymmetricCipher::SymmetricCipher()
 SymmetricCipher::SymmetricCipher(SymmetricKey &key, SymmetricCipher::Operation operation)
 		throw (SymmetricCipherException)
 {
+	this->ctx = EVP_CIPHER_CTX_new();
+	this->mode = SymmetricCipher::CBC;
 	const EVP_CIPHER *cipher;
 	ByteArray keyEncoded, *newKey, *iv;
 	std::pair<ByteArray*, ByteArray*> keyIv;
@@ -37,6 +39,8 @@ SymmetricCipher::SymmetricCipher(SymmetricKey &key, SymmetricCipher::Operation o
 SymmetricCipher::SymmetricCipher(SymmetricKey &key, SymmetricCipher::OperationMode mode, SymmetricCipher::Operation operation)
 	 throw (SymmetricCipherException)
 {
+	this->ctx = EVP_CIPHER_CTX_new();
+	this->mode = mode;
 	const EVP_CIPHER *cipher;
 	ByteArray keyEncoded, *newKey, *iv;
 	std::pair<ByteArray*, ByteArray*> keyIv;
@@ -59,6 +63,7 @@ SymmetricCipher::SymmetricCipher(SymmetricKey &key, SymmetricCipher::OperationMo
 	delete iv;
 	this->buffer = NULL;
 	this->state = SymmetricCipher::INIT;
+	
 }
 
 SymmetricCipher::~SymmetricCipher()
@@ -115,7 +120,7 @@ void SymmetricCipher::init(SymmetricKey &key, SymmetricCipher::OperationMode mod
 		delete this->buffer;
 		this->buffer = NULL;
 	}
-  this->mode = mode;
+  	this->mode = mode;
 	const EVP_CIPHER *cipher;
 	ByteArray keyEncoded, *newKey, *iv;
 	std::pair<ByteArray*, ByteArray*> keyIv;
