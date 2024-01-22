@@ -78,7 +78,7 @@ std::string NetscapeSPKIBuilder::getChallenge()
 	if (this->netscapeSPKI->spkac->challenge->length > 0)
 	{
 		/* pedir ao jeandré se é feito uma cópia do conteudo ao atribuir direto ao std::string */
-		data = (char *)ASN1_STRING_data(this->netscapeSPKI->spkac->challenge);
+		data = (char *)ASN1_STRING_get0_data(this->netscapeSPKI->spkac->challenge);
 		ret = data;
 	}
 	else

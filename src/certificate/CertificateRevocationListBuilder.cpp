@@ -262,7 +262,14 @@ void CertificateRevocationListBuilder::setLastUpdate(DateTime &dateTime)
 
 DateTime CertificateRevocationListBuilder::getLastUpdate()
 {
-	return DateTime(X509_CRL_get_lastUpdate(this->crl));
+	/*
+	 * Scuffed workaround because X509_CRL_get_lastUpdate returns ASN1_TIME* but X509_CRL_get0_lastUpdate returns const ASN1_TIME*
+	 * Please change this to DateTime(ASN1_TIME_dup(X509_CRL_get0_lastUpdate(this->crl))) in 3.0
+	 */
+	ASN1_TIME *time = ASN1_TIME_new();
+	ASN1_TIME_set_string(time, (const char*) X509_CRL_get0_lastUpdate(this->crl)->data);
+	return DateTime(time);
+	//return DateTime(X509_CRL_get_lastUpdate(this->crl));
 }
 
 void CertificateRevocationListBuilder::setNextUpdate(DateTime &dateTime)
@@ -280,7 +287,14 @@ void CertificateRevocationListBuilder::setNextUpdate(DateTime &dateTime)
 
 DateTime CertificateRevocationListBuilder::getNextUpdate()
 {
-	return DateTime(X509_CRL_get_nextUpdate(this->crl));
+	/*
+         * Scuffed workaround because X509_CRL_get_nextUpdate returns ASN1_TIME* but X509_CRL_get0_nextUpdate returns const ASN1_TIME*
+         * Please change this to DateTime(ASN1_TIME_dup(X509_CRL_get0_nextUpdate(this->crl))) in 3.0
+         */
+        ASN1_TIME *time = ASN1_TIME_new();
+        ASN1_TIME_set_string(time, (const char*) X509_CRL_get0_nextUpdate(this->crl)->data);
+        return DateTime(time);
+	//return DateTime(X509_CRL_get_nextUpdate(this->crl));
 }
 
 void CertificateRevocationListBuilder::addRevokedCertificate(RevokedCertificate &revoked)

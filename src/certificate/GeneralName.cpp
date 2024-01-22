@@ -52,11 +52,11 @@ GeneralName::GeneralName(GENERAL_NAME *generalName) {
 			}
 			break;
 		case GEN_EMAIL:
-			data = (char *)ASN1_STRING_data(generalName->d.rfc822Name);
+			data = (char *)ASN1_STRING_get0_data(generalName->d.rfc822Name);
 			this->setRfc822Name(data);
 			break;
 		case GEN_DNS:
-			data = (char *)ASN1_STRING_data(generalName->d.dNSName);
+			data = (char *)ASN1_STRING_get0_data(generalName->d.dNSName);
 			this->setDnsName(data);
 			break;
 		case GEN_DIRNAME:
@@ -64,12 +64,12 @@ GeneralName::GeneralName(GENERAL_NAME *generalName) {
 			this->setDirectoryName(directoryName);
 			break;
 		case GEN_IPADD:
-			temp = (unsigned char *)ASN1_STRING_data(generalName->d.iPAddress);
+			temp = (unsigned char *)ASN1_STRING_get0_data(generalName->d.iPAddress);
 			data = GeneralName::data2IpAddress(temp);
 			this->setIpAddress(data);
 			break;
 		case GEN_URI:
-			data = (char *)ASN1_STRING_data(generalName->d.uniformResourceIdentifier);
+			data = (char *)ASN1_STRING_get0_data(generalName->d.uniformResourceIdentifier);
 			this->setUniformResourceIdentifier(data);
 			break;
 		case GEN_RID:
