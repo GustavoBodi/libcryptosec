@@ -17,12 +17,13 @@ ByteArray Random::bytes(int nbytes) throw (RandomException)
 	return ret;
 }
 
+// Deprecated, pseudoRandom doesnt exist anymore
 ByteArray Random::pseudoBytes(int nbytes) throw (RandomException)
 {
 	int rc;
 	ByteArray ret;
 	ret = ByteArray(nbytes);
-	rc = RAND_pseudo_bytes(ret.getDataPointer(), nbytes);
+	rc = RAND_bytes(ret.getDataPointer(), nbytes);
 	if (rc == -1)
 	{
 		throw RandomException(RandomException::NO_IMPLEMENTED_FUNCTION, "Random::pseudoBytes");

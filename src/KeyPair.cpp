@@ -11,24 +11,31 @@ KeyPair::KeyPair(AsymmetricKey::Algorithm algorithm, int length)
 	RSA *rsa;
 	DSA *dsa;
 	EC_KEY *eckey;
+	BIGNUM *bn;
 	this->key = NULL;
 	this->engine = NULL;
-	rsa = NULL;
-	dsa = NULL;
+	rsa = RSA_new();
+	dsa = DSA_new();
+	bn = BN_new();
 	eckey = NULL;
 	switch (algorithm)
 	{
 		case AsymmetricKey::RSA:
-			rsa = RSA_generate_key(length, RSA_F4, NULL, NULL);
+			if (!RSA_generate_key_ex(rsa, length, bn, NULL))
+			{
+				break;
+			}
+
 			if (!rsa)
 			{
 				break;
 			}
+
 			this->key = EVP_PKEY_new();
 			EVP_PKEY_assign_RSA(this->key, rsa);
 			break;
 		case AsymmetricKey::DSA:
-			dsa = DSA_generate_parameters(length, NULL, 0, NULL, NULL, NULL, NULL);
+			DSA_generate_parameters_ex(dsa, length, NULL, 0, NULL, NULL, NULL);
 			if (!dsa)
 			{
 				break;
