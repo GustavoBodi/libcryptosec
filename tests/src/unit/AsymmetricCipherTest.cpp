@@ -64,17 +64,6 @@ TEST_F(AsymmetricCipherTest, EncryptPKCS1_OAEP) {
 }
 
 /**
- * @brief Tests Asymmetric Cipher with padding SSLV23
- */
-TEST_F(AsymmetricCipherTest, EncryptSSLV23) {
-    ByteArray baEncrypt = AsymmetricCipher::encrypt(AsymmetricCipherTest::pubKey, AsymmetricCipherTest::baData, AsymmetricCipher::SSLV23);
-    ByteArray baDecrypt = AsymmetricCipher::decrypt(AsymmetricCipherTest::privKey, baEncrypt, AsymmetricCipher::SSLV23);
-
-    ASSERT_NE(AsymmetricCipherTest::baData, baEncrypt);
-    ASSERT_EQ(AsymmetricCipherTest::baData, baDecrypt);
-}
-
-/**
  * @brief Tests Asymmetric Cipher with no padding
  */
 TEST_F(AsymmetricCipherTest, EncryptNO_PADDING) {
@@ -100,17 +89,6 @@ TEST_F(AsymmetricCipherTest, EncryptStringPKCS1) {
 TEST_F(AsymmetricCipherTest, EncryptStringPKCS1_OAEP) {
     ByteArray baEncrypt = AsymmetricCipher::encrypt(AsymmetricCipherTest::pubKey, AsymmetricCipherTest::stringASCII, AsymmetricCipher::PKCS1_OAEP);
     ByteArray baDecrypt = AsymmetricCipher::decrypt(AsymmetricCipherTest::privKey, baEncrypt, AsymmetricCipher::PKCS1_OAEP);
-
-    ASSERT_NE(AsymmetricCipherTest::baData, baEncrypt);
-    ASSERT_EQ(AsymmetricCipherTest::baData, baDecrypt);
-}
-
-/**
- * @brief Tests Asymmetric Cipher with padding SSLV23
- */
-TEST_F(AsymmetricCipherTest, EncryptStringSSLV23) {
-    ByteArray baEncrypt = AsymmetricCipher::encrypt(AsymmetricCipherTest::pubKey, AsymmetricCipherTest::stringASCII, AsymmetricCipher::SSLV23);
-    ByteArray baDecrypt = AsymmetricCipher::decrypt(AsymmetricCipherTest::privKey, baEncrypt, AsymmetricCipher::SSLV23);
 
     ASSERT_NE(AsymmetricCipherTest::baData, baEncrypt);
     ASSERT_EQ(AsymmetricCipherTest::baData, baDecrypt);

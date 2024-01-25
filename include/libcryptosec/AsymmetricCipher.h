@@ -30,7 +30,10 @@ public:
 	{
 		NO_PADDING,
 		PKCS1,
-		SSLV23,
+    /* Não deve ser suportado
+    / https://github.com/openssl/openssl/issues/14216
+    */
+		//SSLV23,
 		PKCS1_OAEP,
 	/*	X931  only openssl 0.9.8 support */
 	};

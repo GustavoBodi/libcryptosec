@@ -1,7 +1,7 @@
 ############# CC FLAGS ###############################
 NAME		?= libcryptosec.so
 CC			:= g++
-CPPFLAGS	?= -std=c++98 -fPIC --coverage
+CPPFLAGS	?= -std=c++98 -fPIC --coverage -Wno-deprecated-declarations 
 
 ############# ENVIRONMENT ###############################
 OPENSSL_PREFIX		?= /usr
