@@ -153,15 +153,17 @@ const EVP_MD* MessageDigest::getMessageDigest(MessageDigest::Algorithm algorithm
 	md = NULL;
 	switch (algorithm)
 	{
-		case MessageDigest::MD4:
-			md = EVP_md4();
-			break;
+    // Work only with legacy provider
+		//case MessageDigest::MD4:
+			//md = EVP_md4();
+			//break;
 		case MessageDigest::MD5:
 			md = EVP_md5();
 			break;
-		case MessageDigest::RIPEMD160:
-			md = EVP_ripemd160();
-			break;
+    // Work only with legacy provider
+		//case MessageDigest::RIPEMD160:
+			//md = EVP_ripemd160();
+			//break;
 		case MessageDigest::SHA1:
 			md = EVP_sha1();
 			break;
@@ -189,15 +191,17 @@ ObjectIdentifier MessageDigest::getMessageDigestOid(MessageDigest::Algorithm alg
 	ASN1_OBJECT* asn1object = NULL;
 	switch (algorithm)
 	{
-		case MessageDigest::MD4:
-			asn1object = OBJ_nid2obj(NID_md4);
-			break;
+    // Works only with legacy provider
+		//case MessageDigest::MD4:
+			//asn1object = OBJ_nid2obj(NID_md4);
+			//break;
 		case MessageDigest::MD5:
 			asn1object = OBJ_nid2obj(NID_md5);
 			break;
-		case MessageDigest::RIPEMD160:
-			asn1object = OBJ_nid2obj(NID_ripemd160);
-			break;
+    // Works only with legacy provider
+		//case MessageDigest::RIPEMD160:
+			//asn1object = OBJ_nid2obj(NID_ripemd160);
+			//break;
 		case MessageDigest::SHA1:
 			asn1object = OBJ_nid2obj(NID_sha1);
 			break;
@@ -244,12 +248,13 @@ MessageDigest::Algorithm MessageDigest::getMessageDigest(int algorithmNid)
     	case NID_md5WithRSAEncryption: case NID_md5: case NID_md5WithRSA:
     		ret = MessageDigest::MD5;
     		break;
-    	case NID_md4WithRSAEncryption: case NID_md4:
-    		ret = MessageDigest::MD4;
-    		break;
-    	case NID_ripemd160: case NID_ripemd160WithRSA:
-    		ret = MessageDigest::RIPEMD160;
-    		break;
+      // Work only with legacy provider
+    	//case NID_md4WithRSAEncryption: case NID_md4:
+    		//ret = MessageDigest::MD4;
+    		//break;
+    	//case NID_ripemd160: case NID_ripemd160WithRSA:
+    		//ret = MessageDigest::RIPEMD160;
+    		//break;
     	default:
 			if (algorithmNid != 0 && algorithmNid == nidIdentity) {
 				ret = MessageDigest::Identity;

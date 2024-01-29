@@ -29,9 +29,11 @@ public:
 	 */
 	enum Algorithm
 	{
-		MD4,
+    // Work only with legacy provider
+		//MD4,
 		MD5,
-		RIPEMD160,
+    // Work only with legacy provider
+		//RIPEMD160,
 		SHA1,
 		SHA224,
 		SHA256,
