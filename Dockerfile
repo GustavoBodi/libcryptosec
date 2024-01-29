@@ -21,7 +21,7 @@ RUN cd /home/labsec/ \
     #&& export OPENSSL_CFLAGS=-I/usr/local/ssl/include \
     #&& export OPENSSL_LIBS="-Wl,-rpath -Wl,/usr/local/ssl/lib -L/usr/local/ssl/lib -lcrypto -ldl" \
     && ./configure \
-    && make \
+    && make -j12 \
     && make install
 
 COPY . /home/labsec/libcryptosec
@@ -34,7 +34,7 @@ RUN cd /home/labsec/libcryptosec/ && \
     #export LIBP11_INCLUDEDIR=$LIBP11_PREFIX/include && \
     #export INSTALL_REFIX=/usr && \
     #export INSTALL_LIBDIR=$LIBP11_PREFIX/lib64 && \
-    make && \
+    make -j12 && \
     make install
 
 RUN echo '\nexport OPENSSL_PREFIX=/usr/local/ssl' >> ~/.bashrc

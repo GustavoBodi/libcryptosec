@@ -1,3 +1,4 @@
+#include "stdlib.h"
 #include <libcryptosec/ByteArray.h>
 
 ByteArray::ByteArray()
@@ -9,12 +10,8 @@ ByteArray::ByteArray()
 ByteArray::ByteArray(unsigned int length)
 {
     this->length = length;
-    this->m_data = new unsigned char[length + 1];
-    
-    for(unsigned int i = 0; i <= length; i++)
-    {
-        this->m_data[i] = '\0';   
-    }
+    this->m_data = (unsigned char *) calloc(length + 1, sizeof(unsigned char));
+    this->m_data[length] = '\0';
 }
 
 ByteArray::ByteArray(const unsigned char* data, unsigned int length)
@@ -54,13 +51,9 @@ ByteArray::ByteArray(char *data)
 
 ByteArray::ByteArray(int length)
 {
-    this->length = (unsigned int)length;
-    this->m_data = new unsigned char[length + 1];
-    
-    for(unsigned int i = 0; i <= this->length; i++)
-    {
-        this->m_data[i] = '\0';   
-    }
+    this->length = length;
+    this->m_data = (unsigned char *) calloc(length + 1, sizeof(unsigned char));
+    this->m_data[length] = '\0';
 }
 
 ByteArray::ByteArray(const ByteArray& value)

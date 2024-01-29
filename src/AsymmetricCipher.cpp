@@ -8,7 +8,9 @@ ByteArray AsymmetricCipher::encrypt(RSAPublicKey &key, ByteArray &data, Asymmetr
 	paddingValue = AsymmetricCipher::getPadding(padding);
 	rsaSize = key.getSize();
 	ret = ByteArray(rsaSize);
-	rc = RSA_public_encrypt(data.size(), data.getDataPointer(), ret.getDataPointer(), RSAPublicKey_dup(EVP_PKEY_get0_RSA(key.getEvpPkey())), paddingValue);
+  EVP_PKEY *pkey = key.getEvpPkey();
+  RSA *public_key = EVP_PKEY_get1_RSA(key.getEvpPkey());
+	rc = RSA_public_encrypt(data.size(), data.getDataPointer(), ret.getDataPointer(), public_key, paddingValue);
 	if (rc == -1 || rc != rsaSize)
 	{
 		throw AsymmetricCipherException(AsymmetricCipherException::ENCRYPTING_DATA, "AsymmetricCipher::encrypt");
@@ -24,7 +26,9 @@ ByteArray AsymmetricCipher::encrypt(RSAPublicKey &key, std::string &data, Asymme
 	paddingValue = AsymmetricCipher::getPadding(padding);
 	rsaSize = key.getSize();
 	ret = ByteArray(rsaSize);
-	rc = RSA_public_encrypt(data.size(), (const unsigned char *)data.c_str(), ret.getDataPointer(), RSAPublicKey_dup(EVP_PKEY_get0_RSA(key.getEvpPkey())), paddingValue);
+  EVP_PKEY *pkey = key.getEvpPkey();
+  RSA *public_key = EVP_PKEY_get1_RSA(key.getEvpPkey());
+	rc = RSA_public_encrypt(data.size(), (const unsigned char *)data.c_str(), ret.getDataPointer(), public_key, paddingValue);
 	if (rc == -1 || rc != rsaSize)
 	{
 		throw AsymmetricCipherException(AsymmetricCipherException::ENCRYPTING_DATA, "AsymmetricCipher::encrypt");
@@ -40,7 +44,9 @@ ByteArray AsymmetricCipher::decrypt(RSAPrivateKey &key, ByteArray &ciphered, Asy
 	paddingValue = AsymmetricCipher::getPadding(padding);
 	rsaSize = key.getSize();
 	retTemp = new ByteArray(rsaSize);
-	rc = RSA_private_decrypt(ciphered.size(), ciphered.getDataPointer(), retTemp->getDataPointer(), RSAPublicKey_dup(EVP_PKEY_get0_RSA(key.getEvpPkey())), paddingValue);
+  EVP_PKEY *pkey = key.getEvpPkey();
+  RSA *private_key = EVP_PKEY_get1_RSA(key.getEvpPkey());
+	rc = RSA_private_decrypt(ciphered.size(), ciphered.getDataPointer(), retTemp->getDataPointer(), private_key, paddingValue);
 	if (rc <= 0)
 	{
 		delete retTemp;
