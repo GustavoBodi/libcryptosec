@@ -14,6 +14,14 @@ RUN mkdir -p /home/labsec/
 #
 #RUN ln -s /usr/local/ssl/lib/libcrypto.so /usr/lib/
 
+RUN echo '\nexport OPENSSL_PREFIX=/usr/local/ssl' >> ~/.bashrc
+RUN echo '\nexport OPENSSL_LIBDIR=$OPENSSL_PREFIX/lib' >> ~/.bashrc
+RUN echo '\nexport LIBP11_PREFIX=/usr/local' >> ~/.bashrc
+RUN echo '\nexport LIBP11_LIBDIR=$LIBP11_PREFIX/lib' >> ~/.bashrc
+RUN echo '\nexport LIBP11_INCLUDEDIR=$LIBP11_PREFIX/include' >> ~/.bashrc
+RUN echo '\nexport INSTALL_PREFIX=/usr' >> ~/.bashrc
+RUN echo '\nexport INSTALL_LIBDIR=$INSTALL_PREFIX/lib64' >> ~/.bashrc
+
 RUN cd /home/labsec/ \
     && wget https://github.com/OpenSC/libp11/releases/download/libp11-0.4.7/libp11-0.4.7.tar.gz \
     && tar -xvf libp11-0.4.7.tar.gz \
@@ -36,13 +44,5 @@ RUN cd /home/labsec/libcryptosec/ && \
     #export INSTALL_LIBDIR=$LIBP11_PREFIX/lib64 && \
     make -j12 && \
     make install
-
-RUN echo '\nexport OPENSSL_PREFIX=/usr/local/ssl' >> ~/.bashrc
-RUN echo '\nexport OPENSSL_LIBDIR=$OPENSSL_PREFIX/lib' >> ~/.bashrc
-RUN echo '\nexport LIBP11_PREFIX=/usr/local' >> ~/.bashrc
-RUN echo '\nexport LIBP11_LIBDIR=$LIBP11_PREFIX/lib' >> ~/.bashrc
-RUN echo '\nexport LIBP11_INCLUDEDIR=$LIBP11_PREFIX/include' >> ~/.bashrc
-RUN echo '\nexport INSTALL_PREFIX=/usr' >> ~/.bashrc
-RUN echo '\nexport INSTALL_LIBDIR=$INSTALL_PREFIX/lib64' >> ~/.bashrc
 
 WORKDIR /home/labsec/libcryptosec

@@ -1,7 +1,7 @@
 ############# CC FLAGS ###############################
 NAME = test.out
 CC = g++
-CPPFLAGS = -g -std=c++14 -DGTEST_HAS_PTHREAD=0
+CPPFLAGS = -std=c++14 -g -w -DGTEST_HAS_PTHREAD=0
 DEFS =
 
 ############# ENVIRONMENT ###############################
