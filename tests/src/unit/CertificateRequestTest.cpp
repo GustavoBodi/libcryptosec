@@ -367,15 +367,18 @@ TEST_F(CertificateRequestTest, Extensions) {
 TEST_F(CertificateRequestTest, FingerPrint) {
     ByteArray ba, baNew;
 
+    testSign(req);
     ba = getFingerPrint(req);
 
     req = new CertificateRequest();
+    testSign(req);
     baNew = getFingerPrint(req);
 
     ASSERT_EQ(ba.toString(), baNew.toString());
 
     req = new CertificateRequest();
     fillExtensions(req);
+    testSign(req);
     baNew = getFingerPrint(req);
 
     ASSERT_NE(ba.toString(), baNew.toString());
