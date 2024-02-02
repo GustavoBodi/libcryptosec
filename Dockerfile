@@ -45,4 +45,7 @@ RUN cd /home/labsec/libcryptosec/ && \
     make -j12 && \
     make install
 
+RUN cd /home/labsec/libcryptosec/tests && \
+    make -j12
+
 WORKDIR /home/labsec/libcryptosec

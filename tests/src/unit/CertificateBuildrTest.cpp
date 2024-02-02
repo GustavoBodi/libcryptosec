@@ -299,11 +299,18 @@ protected:
         {
             KeyUsageExtension::Usage usage = (KeyUsageExtension::Usage) i;
 
-            //if (std::find(keyUsage.begin(), keyUsage.end(), usage) != keyUsage.end())
-            //{
-                //ASSERT_TRUE(ext->getUsage(usage));
-                //continue;
-            //}
+            bool found = false;
+            for (auto j = keyUsage.begin(); j != keyUsage.end(); ++j) {
+              if (*j == usage) {
+                found = true;
+                break;
+              }
+            }
+
+            if (found) {
+              ASSERT_TRUE(ext->getUsage(usage));
+              continue;
+            }
 
             ASSERT_FALSE(ext->getUsage(usage));
         }
@@ -328,7 +335,7 @@ protected:
             checkBasicConstraintsReplace(bcExt);
         }
 
-        //checkKeyUsage(kuExt);
+        checkKeyUsage(kuExt);
     }
 
     void getExtension(CertificateBuilder *builder)
@@ -344,7 +351,7 @@ protected:
         kuExt = new KeyUsageExtension(ext->getX509Extension());
 
         checkBasicConstraints(bcExt);
-        //checkKeyUsage(kuExt);
+        checkKeyUsage(kuExt);
     }
 
     void removeExtension(CertificateBuilder *builder, Operation op = NORMAL)
@@ -359,7 +366,7 @@ protected:
             ext = builder->removeExtension(Extension::KEY_USAGE)[0];
             kuExt = new KeyUsageExtension(ext->getX509Extension());
 
-            //checkKeyUsage(kuExt);
+            checkKeyUsage(kuExt);
         }
         else
         {
@@ -477,7 +484,7 @@ protected:
         kuExt = new KeyUsageExtension(exts[1]->getX509Extension());
         
         checkBasicConstraints(bcExt);
-        //checkKeyUsage(kuExt);
+        checkKeyUsage(kuExt);
     }
 
     void getExtension(Certificate *cert)
@@ -493,7 +500,7 @@ protected:
         kuExt = new KeyUsageExtension(ext->getX509Extension());
 
         checkBasicConstraints(bcExt);
-        //checkKeyUsage(kuExt);
+        checkKeyUsage(kuExt);
     }
 
     void checkSignature(Certificate* cert)

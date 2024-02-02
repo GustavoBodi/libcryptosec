@@ -239,13 +239,20 @@ protected:
         {
             KeyUsageExtension::Usage usage = (KeyUsageExtension::Usage) i;
 
-            //if (std::find(keyUsage.begin(), keyUsage.end(), usage) != keyUsage.end())
-            //{
-            //    ASSERT_TRUE(kuExt.getUsage(usage));
-            //    continue;
-            //}
+            bool found = false;
+            for (auto j = keyUsage.begin(); j != keyUsage.end(); ++j) {
+              if (*j == usage) {
+                found = true;
+                break;
+              }
+            }
 
-            //ASSERT_FALSE(kuExt.getUsage(usage));
+            if (found) {
+              ASSERT_TRUE(kuExt.getUsage(usage));
+              continue;
+            }
+
+            ASSERT_FALSE(kuExt.getUsage(usage));
         }
     }
 
