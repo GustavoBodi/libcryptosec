@@ -5,10 +5,12 @@ CPPFLAGS = -std=c++14 -g -w -DGTEST_HAS_PTHREAD=0
 DEFS =
 
 ############# ENVIRONMENT ###############################
-OPENSSL_PREFIX ?= /usr
+INSTALL_PREFIX		?= /usr/local
+OPENSSL_PREFIX ?= /usr/local/ssl
 OPENSSL_LIBDIR ?= $(OPENSSL_PREFIX)/lib64
 OPENSSL_INCLUDEDIR ?= $(OPENSSL_PREFIX)/include
-LIBCRYPTOSEC ?= ../libcryptosec.so
+LIBCRYPTOSEC ?= $(INSTALL_PREFIX)/lib64/libcryptosec.so
+LIBCRYPTOSEC_INCLUDEDIR ?= $(INSTALL_PREFIX)/include/libcryptosec
 GTEST_INCLUDEDIR ?= /usr/include
 SRC_DIR ?= src/unit
 
@@ -16,7 +18,7 @@ SRC_DIR ?= src/unit
 ############ DEPENDENCIES ############################
 
 LIBS = $(LIBCRYPTOSEC) -L$(OPENSSL_LIBDIR) -Wl,-rpath,$(OPENSSL_LIBDIR) -lcrypto -lgtest -pthread
-INCLUDES = -I$(OPENSSL_INCLUDEDIR) -I$(GTEST_INCLUDEDIR) -I../include
+INCLUDES = -I$(OPENSSL_INCLUDEDIR) -I$(GTEST_INCLUDEDIR) -I$(LIBCRYPTOSEC_INCLUDEDIR)
 
 ########### OBJECTS ##################################
 TEST_SRCS += $(wildcard $(SRC_DIR)/*.cpp)

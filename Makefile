@@ -4,7 +4,7 @@ CC			:= g++
 CPPFLAGS	?= -std=c++98 -fPIC --coverage -Wno-deprecated-declarations 
 
 ############# ENVIRONMENT ###############################
-OPENSSL_PREFIX		?= /usr
+OPENSSL_PREFIX		?= /usr/local/ssl
 OPENSSL_LIBDIR		?= $(OPENSSL_PREFIX)/lib64
 OPENSSL_INCLUDEDIR	?= $(OPENSSL_PREFIX)/include
 LIBP11_PREFIX		?= /usr
